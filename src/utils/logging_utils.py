@@ -19,6 +19,7 @@ Usage::
     logger.info("Training started")
 """
 
+import json
 import logging
 import sys
 from logging.handlers import RotatingFileHandler
@@ -37,10 +38,26 @@ _DEFAULT_LEVEL = logging.INFO
 _CONFIGURED: bool = False
 
 
+class JSONFormatter(logging.Formatter):
+    """Formats log records as structured JSON."""
+
+    def format(self, record: logging.LogRecord) -> str:
+        log_data = {
+            "timestamp": self.formatTime(record, self.datefmt),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+        }
+        if record.exc_info:
+            log_data["exception"] = self.formatException(record.exc_info)
+        return json.dumps(log_data)
+
+
 def setup_logging(
     level: int = _DEFAULT_LEVEL,
     log_file: Path | None = None,
     use_rich: bool = True,
+    use_json: bool = False,
 ) -> None:
     """Configure the root logger with console and optional file handlers.
 
@@ -53,6 +70,7 @@ def setup_logging(
             directory is created automatically if it does not exist.
         use_rich: If ``True`` and ``rich`` is installed, use
             ``rich.logging.RichHandler`` for prettier console output.
+        use_json: If ``True``, formats log output as structured JSON.
     """
     global _CONFIGURED
     if _CONFIGURED:
@@ -61,7 +79,11 @@ def setup_logging(
     root = logging.getLogger()
     root.setLevel(level)
 
-    formatter = logging.Formatter(_LOG_FORMAT, datefmt=_DATE_FORMAT)
+    if use_json:
+        formatter: logging.Formatter = JSONFormatter(datefmt=_DATE_FORMAT)
+        use_rich = False
+    else:
+        formatter = logging.Formatter(_LOG_FORMAT, datefmt=_DATE_FORMAT)
 
     # ------------------------------------------------------------------
     # Console handler

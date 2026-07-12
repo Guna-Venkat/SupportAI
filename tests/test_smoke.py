@@ -90,6 +90,21 @@ class TestCoreImports:
     def test_import_src_evaluation_calibration(self) -> None:
         import src.evaluation.calibration  # noqa: F401
 
+    def test_import_src_models_transformer_optimization(self) -> None:
+        import src.models.transformer.optimization  # noqa: F401
+
+    def test_import_src_evaluation_explainability(self) -> None:
+        import src.evaluation.explainability  # noqa: F401
+
+    def test_import_src_models_transformer_retrieval(self) -> None:
+        import src.models.transformer.retrieval  # noqa: F401
+
+    def test_import_src_models_transformer_decision_engine(self) -> None:
+        import src.models.transformer.decision_engine  # noqa: F401
+
+    def test_import_src_api_app(self) -> None:
+        import src.api.app  # noqa: F401
+
 
 @pytest.mark.smoke
 class TestThirdPartyImports:

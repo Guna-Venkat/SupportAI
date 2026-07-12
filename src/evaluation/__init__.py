@@ -1,1 +1,3 @@
-"""src/evaluation/__init__.py - Model evaluation sub-package."""
+from src.evaluation.explainability import TicketExplainer
+
+__all__ = ["TicketExplainer"]
