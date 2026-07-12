@@ -75,6 +75,12 @@ class TestCoreImports:
     def test_import_src_evaluation_error_analysis(self) -> None:
         import src.evaluation.error_analysis  # noqa: F401
 
+    def test_import_src_models_transformer_dataset(self) -> None:
+        import src.models.transformer.dataset  # noqa: F401
+
+    def test_import_src_models_transformer_collator(self) -> None:
+        import src.models.transformer.collator  # noqa: F401
+
 
 @pytest.mark.smoke
 class TestThirdPartyImports:
