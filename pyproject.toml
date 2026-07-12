@@ -54,6 +54,7 @@ dev = [
 supportai = "src.cli:main"
 train_baselines = "src.models.baselines.cli:train_main"
 evaluate_baselines = "src.models.baselines.cli:evaluate_main"
+analyze_errors = "src.evaluation.error_analysis:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

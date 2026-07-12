@@ -72,6 +72,9 @@ class TestCoreImports:
     def test_import_src_models_baselines_cli(self) -> None:
         import src.models.baselines.cli  # noqa: F401
 
+    def test_import_src_evaluation_error_analysis(self) -> None:
+        import src.evaluation.error_analysis  # noqa: F401
+
 
 @pytest.mark.smoke
 class TestThirdPartyImports:
