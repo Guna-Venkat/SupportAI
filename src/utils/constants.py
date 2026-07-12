@@ -15,7 +15,7 @@ Usage::
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
-# Repository root – two levels up from this file:
+# Repository root - two levels up from this file:
 #   src/utils/constants.py  →  src/  →  <repo_root>/
 # ---------------------------------------------------------------------------
 BASE_DIR: Path = Path(__file__).resolve().parent.parent.parent

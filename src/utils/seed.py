@@ -11,8 +11,8 @@ Usage::
 
     from src.utils.seed import set_seed
 
-    set_seed(42)                    # default – fast, deterministic enough
-    set_seed(42, full_determinism=True)  # strict – slower, fully reproducible
+    set_seed(42)                    # default - fast, deterministic enough
+    set_seed(42, full_determinism=True)  # strict - slower, fully reproducible
 """
 
 import logging

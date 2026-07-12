@@ -12,7 +12,6 @@ Verifies:
 from pathlib import Path
 
 import pytest
-
 from src.utils.constants import (
     BASE_DIR,
     BENCHMARKS_DIR,
@@ -88,9 +87,9 @@ class TestPathHierarchy:
 
     def test_base_dir_contains_pyproject(self) -> None:
         """Sanity-check that BASE_DIR points to the repository root."""
-        assert (BASE_DIR / "pyproject.toml").exists(), (
-            "pyproject.toml not found under BASE_DIR – constants.py is misconfigured"
-        )
+        assert (
+            BASE_DIR / "pyproject.toml"
+        ).exists(), "pyproject.toml not found under BASE_DIR - constants.py is misconfigured"
 
     def test_src_dir_exists(self) -> None:
         assert SRC_DIR.exists(), "src/ directory should exist"
@@ -98,6 +97,6 @@ class TestPathHierarchy:
 
 class TestMLflowURI:
     def test_mlflow_uri_starts_with_file(self) -> None:
-        assert MLFLOW_TRACKING_URI.startswith("file:"), (
-            "MLFLOW_TRACKING_URI must be a file:// URI for local tracking"
-        )
+        assert MLFLOW_TRACKING_URI.startswith(
+            "file:"
+        ), "MLFLOW_TRACKING_URI must be a file:// URI for local tracking"

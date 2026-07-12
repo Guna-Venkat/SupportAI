@@ -1,1 +1,1 @@
-"""src/__init__.py – SupportAI package root."""
+"""src/__init__.py - SupportAI package root."""

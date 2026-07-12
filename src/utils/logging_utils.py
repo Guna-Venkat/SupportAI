@@ -9,7 +9,7 @@ Features
 - Console handler with optional colour via ``rich``.
 - Rotating file handler (10 MB per file, 5 backups).
 - Single ``get_logger()`` helper used by every module.
-- Safe to call multiple times – handlers are not duplicated.
+- Safe to call multiple times - handlers are not duplicated.
 
 Usage::
 
@@ -54,7 +54,7 @@ def setup_logging(
         use_rich: If ``True`` and ``rich`` is installed, use
             ``rich.logging.RichHandler`` for prettier console output.
     """
-    global _CONFIGURED  # noqa: PLW0603
+    global _CONFIGURED
     if _CONFIGURED:
         return
 

@@ -17,7 +17,6 @@ import random
 import numpy as np
 import pytest
 import torch
-
 from src.utils.seed import DEFAULT_SEED, set_seed
 
 

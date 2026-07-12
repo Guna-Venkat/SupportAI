@@ -9,7 +9,7 @@ Running ``supportai`` with no arguments prints help.
 Usage::
 
     supportai --help
-    supportai env-check          # Phase 1 – environment diagnostics
+    supportai env-check          # Phase 1 - environment diagnostics
 """
 
 import argparse
@@ -20,7 +20,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="supportai",
         description=(
-            "SupportAI – lightweight customer-support ticket routing system.\n"
+            "SupportAI - lightweight customer-support ticket routing system.\n"
             "Run 'supportai <command> --help' for sub-command details."
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -71,12 +71,12 @@ def _cmd_env_check(args: argparse.Namespace) -> int:
         logger.info("Pandas       : %s", pd.__version__)
         logger.info("Transformers : %s", transformers.__version__)
 
-    from src.utils.constants import BASE_DIR, OUTPUT_DIR, CONFIG_DIR
+    from src.utils.constants import BASE_DIR, CONFIG_DIR, OUTPUT_DIR
 
     logger.info("BASE_DIR     : %s", BASE_DIR)
     logger.info("OUTPUT_DIR   : %s", OUTPUT_DIR)
     logger.info("CONFIG_DIR   : %s", CONFIG_DIR)
-    logger.info("=== Check complete – all imports succeeded ===")
+    logger.info("=== Check complete - all imports succeeded ===")
     return 0
 
 

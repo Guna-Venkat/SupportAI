@@ -12,11 +12,9 @@ Verifies:
 """
 
 import logging
-import tempfile
 from pathlib import Path
 
 import pytest
-
 import src.utils.logging_utils as lu
 from src.utils.logging_utils import get_logger, setup_logging
 

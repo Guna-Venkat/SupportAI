@@ -1,1 +1,1 @@
-"""src/utils/__init__.py – Utility sub-package."""
+"""src/utils/__init__.py - Utility sub-package."""

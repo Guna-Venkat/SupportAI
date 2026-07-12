@@ -50,6 +50,4 @@ class TestThirdPartyImports:
 class TestPythonVersion:
     def test_python_312_or_higher(self) -> None:
         major, minor = sys.version_info.major, sys.version_info.minor
-        assert (major, minor) >= (3, 12), (
-            f"Python 3.12+ required, got {major}.{minor}"
-        )
+        assert (major, minor) >= (3, 12), f"Python 3.12+ required, got {major}.{minor}"
