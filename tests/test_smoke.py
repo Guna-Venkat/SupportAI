@@ -66,6 +66,12 @@ class TestCoreImports:
     def test_import_src_data_eda(self) -> None:
         import src.data.eda  # noqa: F401
 
+    def test_import_src_models_baselines_pipeline(self) -> None:
+        import src.models.baselines.pipeline  # noqa: F401
+
+    def test_import_src_models_baselines_cli(self) -> None:
+        import src.models.baselines.cli  # noqa: F401
+
 
 @pytest.mark.smoke
 class TestThirdPartyImports:
