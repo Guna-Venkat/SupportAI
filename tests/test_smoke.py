@@ -84,6 +84,9 @@ class TestCoreImports:
     def test_import_src_models_transformer_train(self) -> None:
         import src.models.transformer.train  # noqa: F401
 
+    def test_import_src_evaluation_evaluation_runner(self) -> None:
+        import src.evaluation.evaluation_runner  # noqa: F401
+
 
 @pytest.mark.smoke
 class TestThirdPartyImports:
