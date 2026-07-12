@@ -1,0 +1,22 @@
+# SupportAI - Training Overlay Configuration
+# -------------------------------------------------------------
+# Active during model training. Extends/overrides default.yaml.
+
+train:
+  epochs: 5
+  batch_size: 32
+  learning_rate: 0.00005
+  weight_decay: 0.01
+  gradient_accumulation_steps: 1
+  mixed_precision: "fp16"
+  early_stopping_patience: 2
+  save_every_epoch: true
+  resume_checkpoint: ""
+
+# Model parameters override during training
+model:
+  name: "distilbert-base-uncased"
+  type: "transformers"
+  params:
+    num_labels: 5
+    dropout: 0.1

@@ -1,0 +1,15 @@
+# SupportAI - Inference Overlay Configuration
+# -------------------------------------------------------------
+# Active during offline/online model serving. Extends/overrides default.yaml.
+
+inference:
+  batch_size: 64
+  device: "cpu"
+  confidence_threshold: 0.85
+  calibration_method: "platt_scaling"
+
+# Model parameters override during inference
+model:
+  name: "distilbert-base-uncased"
+  type: "transformers"
+  checkpoint_path: "outputs/models/best_model.pt"

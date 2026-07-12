@@ -27,6 +27,24 @@ class TestCoreImports:
     def test_import_src_cli(self) -> None:
         import src.cli  # noqa: F401
 
+    def test_import_src_utils_config(self) -> None:
+        import src.utils.config  # noqa: F401
+
+    def test_import_src_utils_artifacts(self) -> None:
+        import src.utils.artifacts  # noqa: F401
+
+    def test_import_src_utils_version(self) -> None:
+        import src.utils.version  # noqa: F401
+
+    def test_import_src_utils_timer(self) -> None:
+        import src.utils.timer  # noqa: F401
+
+    def test_import_src_evaluation_metrics(self) -> None:
+        import src.evaluation.metrics  # noqa: F401
+
+    def test_import_benchmarks_benchmark_runner(self) -> None:
+        import benchmarks.benchmark_runner  # noqa: F401
+
 
 @pytest.mark.smoke
 class TestThirdPartyImports:
