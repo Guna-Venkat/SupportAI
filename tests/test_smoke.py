@@ -81,6 +81,9 @@ class TestCoreImports:
     def test_import_src_models_transformer_collator(self) -> None:
         import src.models.transformer.collator  # noqa: F401
 
+    def test_import_src_models_transformer_train(self) -> None:
+        import src.models.transformer.train  # noqa: F401
+
 
 @pytest.mark.smoke
 class TestThirdPartyImports:
