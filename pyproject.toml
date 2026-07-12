@@ -57,6 +57,7 @@ evaluate_baselines = "src.models.baselines.cli:evaluate_main"
 analyze_errors = "src.evaluation.error_analysis:main"
 train_transformer = "src.models.transformer.train:main"
 evaluate_transformer = "src.evaluation.evaluation_runner:main"
+calibrate_model = "src.evaluation.calibration:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

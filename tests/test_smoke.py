@@ -87,6 +87,9 @@ class TestCoreImports:
     def test_import_src_evaluation_evaluation_runner(self) -> None:
         import src.evaluation.evaluation_runner  # noqa: F401
 
+    def test_import_src_evaluation_calibration(self) -> None:
+        import src.evaluation.calibration  # noqa: F401
+
 
 @pytest.mark.smoke
 class TestThirdPartyImports:
