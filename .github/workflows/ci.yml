@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "develop"]
+  pull_request:
+    branches: ["main", "develop"]
+
+# Cancel in-flight runs on the same branch when a new push arrives.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  # ---------------------------------------------------------------
+  # Lint – fast gate; blocks merge if code style violations exist.
+  # ---------------------------------------------------------------
+  lint:
+    name: "Lint (ruff + black)"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install linting tools
+        run: pip install ruff black
+
+      - name: Run ruff
+        run: ruff check src tests
+
+      - name: Run black (check-only)
+        run: black --check src tests
+
+  # ---------------------------------------------------------------
+  # Tests – runs the full pytest suite with coverage reporting.
+  # ---------------------------------------------------------------
+  test:
+    name: "Tests (pytest)"
+    runs-on: ubuntu-latest
+    needs: lint   # only run tests if lint passes
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install project with dev extras
+        run: |
+          pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Create required output directories
+        run: mkdir -p outputs/metrics logs
+
+      - name: Run pytest
+        run: |
+          python -m pytest tests/ \
+            --cov=src \
+            --cov-report=xml:outputs/metrics/coverage.xml \
+            -v \
+            --tb=short
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-xml
+          path: outputs/metrics/coverage.xml
+          retention-days: 14

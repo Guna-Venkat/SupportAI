@@ -1,0 +1,36 @@
+# SupportAI – main configuration
+# ---------------------------------------------------------------
+# All values here are defaults. Override via environment variables
+# or a local config.local.yaml (git-ignored).
+# ---------------------------------------------------------------
+
+project:
+  name: "SupportAI"
+  version: "0.1.0"
+  description: "Lightweight customer-support ticket routing system."
+
+# Reproducibility
+seed: 42
+full_determinism: false
+
+# Logging
+logging:
+  level: "INFO"          # DEBUG | INFO | WARNING | ERROR
+  log_to_file: true
+  log_filename: "supportai.log"   # relative to logs/
+
+# MLflow
+mlflow:
+  experiment_name: "supportai"
+  run_tags:
+    project: "SupportAI"
+    phase: "1"
+
+# Paths (relative to BASE_DIR; resolved at runtime via constants.py)
+paths:
+  data: "data"
+  outputs: "outputs"
+  checkpoints: "outputs/checkpoints"
+  metrics: "outputs/metrics"
+  figures: "outputs/figures"
+  models: "outputs/models"
