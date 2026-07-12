@@ -45,6 +45,27 @@ class TestCoreImports:
     def test_import_benchmarks_benchmark_runner(self) -> None:
         import benchmarks.benchmark_runner  # noqa: F401
 
+    def test_import_src_data_schema(self) -> None:
+        import src.data.schema  # noqa: F401
+
+    def test_import_src_data_preprocessing(self) -> None:
+        import src.data.preprocessing  # noqa: F401
+
+    def test_import_src_data_cache(self) -> None:
+        import src.data.cache  # noqa: F401
+
+    def test_import_src_data_validation(self) -> None:
+        import src.data.validation  # noqa: F401
+
+    def test_import_src_data_dataset(self) -> None:
+        import src.data.dataset  # noqa: F401
+
+    def test_import_src_data_dataloader(self) -> None:
+        import src.data.dataloader  # noqa: F401
+
+    def test_import_src_data_eda(self) -> None:
+        import src.data.eda  # noqa: F401
+
 
 @pytest.mark.smoke
 class TestThirdPartyImports:
