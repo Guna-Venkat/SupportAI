@@ -6,4 +6,4 @@ test_rows: 1302
 unique_classes: 77
 rare_classes_count: 3
 vocabulary_size: 4154
-git_commit: cc1c1de64b28542d4db316ac79bd4990d31964a5
+git_commit: ef9a0498221c5c43373fcf9e951987614174868f

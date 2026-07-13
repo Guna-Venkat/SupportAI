@@ -1,3 +1,27 @@
 phase: 06_Training
-training_history: {}
-git_commit: 41992c72d32bca78ca3e94589be1a61f5a59f916
+training_history:
+- epoch: 1
+  train_loss: 3.5462019979406936
+  val_loss: 1.8076375286753585
+  val_accuracy: 0.6822001527883881
+- epoch: 2
+  train_loss: 0.9342559428390013
+  val_loss: 0.45589344530570797
+  val_accuracy: 0.8892284186401833
+- epoch: 3
+  train_loss: 0.3036716456442433
+  val_loss: 0.32708757679636885
+  val_accuracy: 0.9083269671504965
+- epoch: 4
+  train_loss: 0.15464303599220533
+  val_loss: 0.3056414054661262
+  val_accuracy: 0.9083269671504965
+- epoch: 5
+  train_loss: 0.07940496244561782
+  val_loss: 0.30898508356838694
+  val_accuracy: 0.9121466768525592
+- epoch: 6
+  train_loss: 0.042435198025464645
+  val_loss: 0.306171146107883
+  val_accuracy: 0.9213139801375095
+git_commit: ef9a0498221c5c43373fcf9e951987614174868f
