@@ -1,7 +1,7 @@
 # SupportAI
 
 <p align="center">
-  <img src="docs/architecture.svg" alt="SupportAI Logo" width="160" />
+  <img src="docs/architecture.svg" alt="SupportAI Logo" width="480" />
 </p>
 
 <h3 align="center">SupportAI</h3>
@@ -43,14 +43,14 @@ graph TD
 
 ## 🚀 Key Features
 
-*   ⚡ **High-Throughput ONNX INT8 Runtime**: Models are compiled to ONNX format and quantized to 8-bit integers, yielding a **~28% reduction in latency** and **~75% reduction in disk size** with negligible accuracy loss on CPUs.
-*   ⚖️ **Logits Calibration**: Out-of-the-box deep classifiers are often overconfident. SupportAI calibrates intent prediction probabilities using post-processing **Temperature Scaling** ($T = 1.1939$) to ensure confidence matches accuracy.
-*   🧠 **3-Tier Decision Routing**:
-    *   **Tier 1 (Auto-route)**: Instantly routes high-confidence classification queries.
-    *   **Tier 2 (RAG Fallback)**: Resolves mid-confidence queries by pulling contextually similar tickets via a FAISS index and drafting responses using a local LLM.
-    *   **Tier 3 (Human Escalation)**: Immediately flags low-confidence or highly ambiguous queries for manual human support.
-*   🔍 **Local Explainability**: Integrates **LIME (Local Interpretable Model-agnostic Explanations)** to compute word attributions, giving support agents clear visibility into why a ticket was routed to a specific category.
-*   📊 **Live Telemetry & Observability**: Telemetry middleware automatically logs request latencies and response payloads to a structured `traces.jsonl` file and exposes custom metrics on a `/metrics` Prometheus endpoint.
+* ⚡ **High-Throughput ONNX INT8 Runtime**: Models are compiled to ONNX format and quantized to 8-bit integers, yielding a **~28% reduction in latency** and **~75% reduction in disk size** with negligible accuracy loss on CPUs.
+* ⚖️ **Logits Calibration**: Out-of-the-box deep classifiers are often overconfident. SupportAI calibrates intent prediction probabilities using post-processing **Temperature Scaling** ($T = 1.1939$) to ensure confidence matches accuracy.
+* 🧠 **3-Tier Decision Routing**:
+  * **Tier 1 (Auto-route)**: Instantly routes high-confidence classification queries.
+  * **Tier 2 (RAG Fallback)**: Resolves mid-confidence queries by pulling contextually similar tickets via a FAISS index and drafting responses using a local LLM.
+  * **Tier 3 (Human Escalation)**: Immediately flags low-confidence or highly ambiguous queries for manual human support.
+* 🔍 **Local Explainability**: Integrates **LIME (Local Interpretable Model-agnostic Explanations)** to compute word attributions, giving support agents clear visibility into why a ticket was routed to a specific category.
+* 📊 **Live Telemetry & Observability**: Telemetry middleware automatically logs request latencies and response payloads to a structured `traces.jsonl` file and exposes custom metrics on a `/metrics` Prometheus endpoint.
 
 ---
 
@@ -71,8 +71,9 @@ All benchmarks were evaluated on a CPU-only environment. Run the benchmark runne
 | **Cold Start Duration** | 0.144 s | **0.017 s** | 0.188 s |
 
 ### 2. Performance Trade-off Insights
-1.  **Quantization Efficiency**: ONNX INT8 quantization achieves a **~28% speedup** over PyTorch FP32 on CPU-only hardware while saving **74.6% disk space** (from 255.6 MB to 64.8 MB) with only a tiny drop in test accuracy (0.15%).
-2.  **Calibration Impact**: Post-training temperature scaling successfully aligns the classifier's output probabilities, decreasing the ECE from 0.0791 (SVM) to 0.0196 (Calibrated Transformer).
+
+1. **Quantization Efficiency**: ONNX INT8 quantization achieves a **~28% speedup** over PyTorch FP32 on CPU-only hardware while saving **74.6% disk space** (from 255.6 MB to 64.8 MB) with only a tiny drop in test accuracy (0.15%).
+2. **Calibration Impact**: Post-training temperature scaling successfully aligns the classifier's output probabilities, decreasing the ECE from 0.0791 (SVM) to 0.0196 (Calibrated Transformer).
 
 ---
 
@@ -82,7 +83,9 @@ All benchmarks were evaluated on a CPU-only environment. Run the benchmark runne
 <summary>📸 View UI & Monitoring Mockups</summary>
 
 ### Interactive Web Demo UI
+
 *Serve `/` to access the responsive web frontend dashboard.*
+
 ```
 +-------------------------------------------------------------------+
 | SupportAI Agent Dashboard                                         |
@@ -98,7 +101,9 @@ All benchmarks were evaluated on a CPU-only environment. Run the benchmark runne
 ```
 
 ### Swagger API Documentation
+
 *Interactive REST endpoint schemas served on `/docs`.*
+
 ```
 +-------------------------------------------------------------------+
 | Swagger UI - SupportAI API                                        |
@@ -112,13 +117,16 @@ All benchmarks were evaluated on a CPU-only environment. Run the benchmark runne
 ```
 
 ### Prometheus & Grafana Telemetry Dashboard
+
 *Active request tracking and calibration distributions.*
+
 ```
 +------------------------------------+------------------------------+
 | Active Request Count (QPS)         | Latency P99 Distribution     |
 | [ |||||||||||||||||||||||| ] 87.8  | [ |||||||                 ]  |
 +------------------------------------+------------------------------+
 ```
+
 </details>
 
 ---
@@ -126,10 +134,12 @@ All benchmarks were evaluated on a CPU-only environment. Run the benchmark runne
 ## 🛠️ Installation Guide
 
 ### Prerequisites
-*   Python 3.11, 3.12, or 3.13
-*   `pip` (latest version recommended)
+
+* Python 3.11, 3.12, or 3.13
+* `pip` (latest version recommended)
 
 ### 1. Clone & Initialize Environment
+
 ```bash
 # Clone the repository
 git clone https://github.com/Guna-Venkat/SupportAI.git
@@ -140,7 +150,9 @@ pip install -e ".[dev]"
 ```
 
 ### 2. Environment Variables configuration
+
 Copy the template or create `.env` files to configure your environment variables:
+
 ```bash
 # Set testing environment variables to bypass heavy model weights in tests
 set TESTING=true
@@ -151,22 +163,29 @@ set TESTING=true
 ## 🚀 Quickstart
 
 ### 1. Start the API Gateway Server
+
 Run the FastAPI application locally:
+
 ```bash
 # Set TESTING=true to use a lightweight random fallback model for local validation
 set TESTING=true
 uvicorn src.api.app:app --host 127.0.0.1 --port 8000
 ```
+
 Open **[http://localhost:8000/](http://localhost:8000/)** in your browser to view the interactive web demo.
 
 ### 2. Verify with the CLI Engine
+
 You can route ticket requests directly from the terminal:
+
 ```bash
 python -m src.models.transformer.decision_engine --text "I forgot my passcode and cannot login"
 ```
 
 ### 3. Run the Test Suite
+
 Execute the entire test suite using `pytest`:
+
 ```bash
 pytest
 ```
@@ -178,12 +197,15 @@ pytest
 Here are `curl` commands to query endpoints once the FastAPI application is running.
 
 ### 1. Prediction with Decision Routing (`POST /predict`)
+
 ```bash
 curl -X POST http://127.0.0.1:8000/predict \
      -H "Content-Type: application/json" \
      -d '{"text": "I forgot my passcode and cannot login"}'
 ```
+
 **Response (High Confidence / Tier 1 Auto-Route)**:
+
 ```json
 {
   "intent": "passcode_forgotten",
@@ -196,12 +218,15 @@ curl -X POST http://127.0.0.1:8000/predict \
 ```
 
 ### 2. Ticket Explainability Attributions (`POST /explain`)
+
 ```bash
 curl -X POST http://127.0.0.1:8000/explain \
      -H "Content-Type: application/json" \
      -d '{"text": "I forgot my passcode and cannot login", "num_features": 3}'
 ```
+
 **Response**:
+
 ```json
 {
   "predicted_class": "passcode_forgotten",
@@ -250,24 +275,29 @@ SupportAI/
 To retrain the intent classification models and optimize them:
 
 ### 1. Data Preprocessing & Validation
+
 ```bash
 python -m src.data.make_dataset
 ```
+
 This loads raw customer support ticket data, validates schemas, creates stratified splits, and saves preprocessed train/validation/test outputs.
 
 ### 2. Model Training
+
 ```bash
 # Trains SVM and DistilBERT classifiers with MLflow experiment logging
 python -m src.models.transformer.train
 ```
 
 ### 3. Logits Calibration Scaling
+
 ```bash
 # Optimizes Temperature parameter T on the validation set
 python -m src.evaluation.calibration
 ```
 
 ### 4. ONNX Compilation and INT8 Quantization
+
 ```bash
 # Converts the PyTorch checkpoint to ONNX and performs static/dynamic quantization
 python -m src.models.transformer.optimization
@@ -284,10 +314,11 @@ A fully provisioned multi-service stack is orchestrated using `docker-compose`.
 docker-compose up --build -d
 ```
 
-### Container Endpoints:
-*   **FastAPI Application**: [http://localhost:8000](http://localhost:8000)
-*   **Prometheus Server**: [http://localhost:9090](http://localhost:9090)
-*   **Grafana Dashboards**: [http://localhost:3000](http://localhost:3000) *(Default credentials: `admin` / `admin`)*
+### Container Endpoints
+
+* **FastAPI Application**: [http://localhost:8000](http://localhost:8000)
+* **Prometheus Server**: [http://localhost:9090](http://localhost:9090)
+* **Grafana Dashboards**: [http://localhost:3000](http://localhost:3000) *(Default credentials: `admin` / `admin`)*
 
 ---
 
@@ -295,17 +326,17 @@ docker-compose up --build -d
 
 Use these structured highlights to explain the engineering decisions made in this repository during job interviews:
 
-*   **Logits Calibration**: *"I noticed that the fine-tuned transformer classifier was highly overconfident (giving ~99% confidence for incorrect classifications). I implemented temperature scaling on the validation set, lowering the Expected Calibration Error (ECE) to 0.0196. This makes our confidence scores reliable enough to use as routing thresholds."*
-*   **ONNX Quantization**: *"Running deep learning classifiers on CPU introduces latency bottlenecks. I compiled our DistilBERT model to ONNX format and performed dynamic 8-bit quantization. This lowered latency by nearly 28% and reduced the model's disk footprint by 75%, allowing us to host the system cheaply on basic CPU nodes without compromising on accuracy."*
-*   **3-Tier RAG Routing**: *"LLM token generation is slow and expensive. I designed a 3-tier decision engine. Only mid-confidence tickets trigger RAG (FAISS retrieval + LLM reply generation). High-confidence tickets bypass the LLM completely via automated classification routing, reducing token costs by over 70%."*
+* **Logits Calibration**: *"I noticed that the fine-tuned transformer classifier was highly overconfident (giving ~99% confidence for incorrect classifications). I implemented temperature scaling on the validation set, lowering the Expected Calibration Error (ECE) to 0.0196. This makes our confidence scores reliable enough to use as routing thresholds."*
+* **ONNX Quantization**: *"Running deep learning classifiers on CPU introduces latency bottlenecks. I compiled our DistilBERT model to ONNX format and performed dynamic 8-bit quantization. This lowered latency by nearly 28% and reduced the model's disk footprint by 75%, allowing us to host the system cheaply on basic CPU nodes without compromising on accuracy."*
+* **3-Tier RAG Routing**: *"LLM token generation is slow and expensive. I designed a 3-tier decision engine. Only mid-confidence tickets trigger RAG (FAISS retrieval + LLM reply generation). High-confidence tickets bypass the LLM completely via automated classification routing, reducing token costs by over 70%."*
 
 ---
 
 ## 🔮 Future Work
 
-1.  **Async Queue Processing**: Process heavy RAG/LLM fallback draft generations asynchronously using Celery or Redis queues to avoid blocking FastAPI's event loop under heavy load.
-2.  **Dynamic Temperature Scaling**: Introduce class-conditional temperature scaling or isotonic regression to calibrate highly imbalanced intent classes individually.
-3.  **Edge Device Compilation**: Quantize models to `vllm` formats or run quantized GGUF models via llama.cpp locally to further reduce CPU consumption.
+1. **Async Queue Processing**: Process heavy RAG/LLM fallback draft generations asynchronously using Celery or Redis queues to avoid blocking FastAPI's event loop under heavy load.
+2. **Dynamic Temperature Scaling**: Introduce class-conditional temperature scaling or isotonic regression to calibrate highly imbalanced intent classes individually.
+3. **Edge Device Compilation**: Quantize models to `vllm` formats or run quantized GGUF models via llama.cpp locally to further reduce CPU consumption.
 
 ---
 
@@ -315,7 +346,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ```bibtex
 @software{supportai2026,
-  author = {Venkat, Guna},
+  author = {Guna Venkat, Doddi},
   title = {SupportAI: Production Customer Support Routing and Calibration System},
   year = {2026},
   publisher = {GitHub},
