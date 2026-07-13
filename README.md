@@ -7,7 +7,7 @@
 <h3 align="center">SupportAI</h3>
 
 <p align="center">
-  <strong>Production-grade, low-latency customer support ticket intelligence.</strong>
+  <strong>Production-grade, low-latency customer support ticket routing and intelligence.</strong>
 </p>
 
 <p align="center">
@@ -25,13 +25,19 @@
 
 **SupportAI** is a lightweight, high-performance customer support ticket routing and intelligence system designed to run efficiently on commodity CPU hardware. By pairing a fine-tuned **DistilBERT classifier** with **Temperature Scaling calibration**, a **FAISS-based semantic retriever**, and a **lightweight local LLM fallback**, SupportAI implements an intelligent 3-tier routing pipeline that balances accuracy, inference latency, and operational cost.
 
+---
+
+## 🗺️ System Architecture
+
+The following diagram illustrates the 3-tier routing and decision flow of SupportAI:
+
 ```mermaid
 graph TD
     A[Incoming Customer Ticket] --> B[Logits Calibration Scaling]
     B --> C{Confidence Check}
     C -->|Confidence >= 0.90| D[Tier 1: Automated Routing]
-    C -->|0.30 <= Confidence < 0.90| E[Tier 2: Retrieval + LLM Fallback]
-    C -->|Confidence < 0.30| F[Tier 3: Human Escalation]
+    C -->|0.60 <= Confidence < 0.90| E[Tier 2: Retrieval + LLM Fallback]
+    C -->|Confidence < 0.60| F[Tier 3: Human Escalation]
     E --> G[FAISS Search over Historical Resolved Cases]
     G --> H[LLM Generation of Draft Response]
     H --> I[API Response with LLM Draft]
@@ -41,16 +47,31 @@ graph TD
 
 ---
 
-## 🚀 Key Features
+## 📦 Deployment Stages (Dynamic Toggling)
 
-* ⚡ **High-Throughput ONNX INT8 Runtime**: Models are compiled to ONNX format and quantized to 8-bit integers, yielding a **~28% reduction in latency** and **~75% reduction in disk size** with negligible accuracy loss on CPUs.
-* ⚖️ **Logits Calibration**: Out-of-the-box deep classifiers are often overconfident. SupportAI calibrates intent prediction probabilities using post-processing **Temperature Scaling** ($T = 1.1939$) to ensure confidence matches accuracy.
-* 🧠 **3-Tier Decision Routing**:
-  * **Tier 1 (Auto-route)**: Instantly routes high-confidence classification queries.
-  * **Tier 2 (RAG Fallback)**: Resolves mid-confidence queries by pulling contextually similar tickets via a FAISS index and drafting responses using a local LLM.
-  * **Tier 3 (Human Escalation)**: Immediately flags low-confidence or highly ambiguous queries for manual human support.
-* 🔍 **Local Explainability**: Integrates **LIME (Local Interpretable Model-agnostic Explanations)** to compute word attributions, giving support agents clear visibility into why a ticket was routed to a specific category.
-* 📊 **Live Telemetry & Observability**: Telemetry middleware automatically logs request latencies and response payloads to a structured `traces.jsonl` file and exposes custom metrics on a `/metrics` Prometheus endpoint.
+SupportAI can be dynamically toggled into three different architectural stages based on resource availability and deployment goals, using environment variables:
+
+1. **Stage 1 (Classifier-only Mode)**: Sets `RETRIEVAL_ENABLED=false` and `LLM_ENABLED=false`. Extremely fast, lightweight (~100MB RAM), and relies entirely on calibrated intent classification. High confidence queries route automatically; others escalate.
+2. **Stage 2 (Classifier + Retrieval Mode)**: Sets `RETRIEVAL_ENABLED=true` and `LLM_ENABLED=false`. Returns both intent classification and similar historical tickets via FAISS, but skips heavy text generation.
+3. **Stage 3 (Full RAG Mode)**: Sets `RETRIEVAL_ENABLED=true` and `LLM_ENABLED=true` (default). Full 3-tier decision engine routing with local LLM draft reply generation.
+
+---
+
+## 🚀 Feature Checklist
+
+| Feature | SupportAI |
+| :--- | :---: |
+| **TF-IDF Baseline** | ✅ |
+| **DistilBERT Classifier** | ✅ |
+| **Probability Calibration (Temperature Scaling)** | ✅ |
+| **ONNX Quantization (INT8)** | ✅ |
+| **FAISS Semantic Retrieval** | ✅ |
+| **LLM Fallback (Phi-3-mini)** | ✅ |
+| **Explainability (LIME)** | ✅ |
+| **REST API (FastAPI)** | ✅ |
+| **Containerization (Docker)** | ✅ |
+| **Monitoring & Telemetry (Prometheus & Grafana)** | ✅ |
+| **Unit & Integration Tests** | 129 ✅ |
 
 ---
 
@@ -113,6 +134,7 @@ All benchmarks were evaluated on a CPU-only environment. Run the benchmark runne
 | POST /retrieve - Retrieve similar historical cases                |
 | POST /explain  - Compute LIME keyword attributions               |
 | GET  /metrics  - Prometheus metric exporter                      |
+| GET  /version  - Show system version metadata                    |
 +-------------------------------------------------------------------+
 ```
 
@@ -167,9 +189,11 @@ set TESTING=true
 Run the FastAPI application locally:
 
 ```bash
-# Set TESTING=true to use a lightweight random fallback model for local validation
+# Start in Stage 2 mode (Classifier + Retrieval, no LLM) - ideal for local testing
 set TESTING=true
-uvicorn src.api.app:app --host 127.0.0.1 --port 8000
+set RETRIEVAL_ENABLED=true
+set LLM_ENABLED=false
+python -m src.api.app
 ```
 
 Open **[http://localhost:8000/](http://localhost:8000/)** in your browser to view the interactive web demo.
@@ -187,6 +211,7 @@ python -m src.models.transformer.decision_engine --text "I forgot my passcode an
 Execute the entire test suite using `pytest`:
 
 ```bash
+set TESTING=true
 pytest
 ```
 
@@ -252,7 +277,8 @@ SupportAI/
 │   └── prometheus.yml        # Prometheus server targets scraper configuration
 ├── docs/                     # Production reports and verification guide
 │   ├── benchmark_results.md  # Detailed benchmark analysis
-│   └── FINAL_VERIFICATION.md # Core integration reports
+│   ├── FINAL_DEPLOYMENT_GUIDE.md # Container & HF Spaces deployment instructions
+│   └── FINAL_VERIFICATION_REPORT.md # Verification metrics & stage testing outputs
 ├── notebooks/                # Jupyter walkthough demo notebooks
 │   ├── 00_Env_Check.ipynb    # Setup verification
 │   ├── 08_Calibration.ipynb  # Temperature scaling execution
@@ -266,41 +292,6 @@ SupportAI/
 ├── tests/                    # pytest unit & integration test suites
 ├── Dockerfile                # Production container compile config
 └── docker-compose.yml        # Multi-service composition configuration
-```
-
----
-
-## 🧱 Training & Optimization Pipeline
-
-To retrain the intent classification models and optimize them:
-
-### 1. Data Preprocessing & Validation
-
-```bash
-python -m src.data.make_dataset
-```
-
-This loads raw customer support ticket data, validates schemas, creates stratified splits, and saves preprocessed train/validation/test outputs.
-
-### 2. Model Training
-
-```bash
-# Trains SVM and DistilBERT classifiers with MLflow experiment logging
-python -m src.models.transformer.train
-```
-
-### 3. Logits Calibration Scaling
-
-```bash
-# Optimizes Temperature parameter T on the validation set
-python -m src.evaluation.calibration
-```
-
-### 4. ONNX Compilation and INT8 Quantization
-
-```bash
-# Converts the PyTorch checkpoint to ONNX and performs static/dynamic quantization
-python -m src.models.transformer.optimization
 ```
 
 ---
@@ -319,6 +310,13 @@ docker-compose up --build -d
 * **FastAPI Application**: [http://localhost:8000](http://localhost:8000)
 * **Prometheus Server**: [http://localhost:9090](http://localhost:9090)
 * **Grafana Dashboards**: [http://localhost:3000](http://localhost:3000) *(Default credentials: `admin` / `admin`)*
+
+---
+
+## 🤗 Hugging Face Model & Space
+
+* **Hugging Face Space Demo (Stage 2)**: [Guna-Venkat/SupportAI Space](https://huggingface.co/spaces/Guna-Venkat/SupportAI) *(Placeholder)*
+* **Hugging Face Model Hub**: [Guna-Venkat/SupportAI-Classifier](https://huggingface.co/Guna-Venkat/SupportAI-Classifier) *(Placeholder)*
 
 ---
 

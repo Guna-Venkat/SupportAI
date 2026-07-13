@@ -15,12 +15,18 @@ COPY README.md ./
 COPY src/ ./src/
 COPY configs/ ./configs/
 
+# Copy the trained classifier model, retrieval index, and calibration/label encoders
+COPY outputs/models/best_model/ ./outputs/models/best_model/
+COPY outputs/models/label_encoder.json ./outputs/models/label_encoder.json
+COPY outputs/metrics/calibration_summary.json ./outputs/metrics/calibration_summary.json
+COPY outputs/retrieval_index/ ./outputs/retrieval_index/
+
 # Upgrade pip and install the package
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir .
 
-# Expose REST API port
+# Expose default REST API port
 EXPOSE 8000
 
-# Run API server with uvicorn
-CMD ["uvicorn", "src.api.app:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run API server using the module runner to support dynamic PORT binding
+CMD ["python", "-m", "src.api.app"]

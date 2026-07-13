@@ -116,10 +116,18 @@ async def lifespan(app: FastAPI):
 
     retriever_index_dir = OUTPUT_DIR / "retrieval_index"
 
+    # Check if retrieval is enabled from config and env
+    retrieval_env = os.environ.get("RETRIEVAL_ENABLED")
+    if retrieval_env is not None:
+        retrieval_enabled = retrieval_env.lower() in ("true", "1", "yes")
+    else:
+        retrieval_enabled = config.get("retrieval", {}).get("enabled", True)
+
     # 1. Initialize Decision Engine
     try:
-        if not model_dir.exists() or not retriever_index_dir.exists():
-            logger.warning("Classifier or retrieval models missing! Starting in DEGRADED mode.")
+        retriever_missing = retrieval_enabled and not retriever_index_dir.exists()
+        if not model_dir.exists() or retriever_missing:
+            logger.warning("Required models missing (Classifier or Retrieval Index)! Starting in DEGRADED mode.")
             app.state.decision_engine = None
         else:
             app.state.decision_engine = DecisionEngine(
@@ -133,7 +141,10 @@ async def lifespan(app: FastAPI):
 
     # 2. Initialize Semantic Retriever
     try:
-        if not retriever_index_dir.exists():
+        if not retrieval_enabled:
+            logger.info("Semantic retriever is disabled via configuration. Skipping loading.")
+            app.state.retriever = None
+        elif not retriever_index_dir.exists():
             logger.warning("Retrieval index missing!")
             app.state.retriever = None
         else:
@@ -435,6 +446,7 @@ def explain_ticket(request: ExplainRequest):
 def run_api_main() -> None:
     """CLI entrypoint to start FastAPI uvicorn production server."""
     import argparse
+    import os
 
     import uvicorn
 
@@ -443,4 +455,12 @@ def run_api_main() -> None:
     parser.add_argument("--port", type=int, default=8000, help="Port to listen.")
     args = parser.parse_args()
 
-    uvicorn.run("src.api.app:app", host=args.host, port=args.port, reload=False)
+    # Read port from PORT env variable (e.g. for HF Spaces or Render)
+    port = int(os.environ.get("PORT", args.port))
+
+    uvicorn.run("src.api.app:app", host=args.host, port=port, reload=False)
+
+
+if __name__ == "__main__":
+    run_api_main()
+

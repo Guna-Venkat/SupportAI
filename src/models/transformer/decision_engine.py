@@ -51,10 +51,17 @@ class DecisionEngine:
         self.device_str = device or ("cuda" if torch.cuda.is_available() else "cpu")
         self.device = torch.device(self.device_str)
 
-        # 1. Routing thresholds
+        # 1. Routing thresholds and environment/config toggles
         de_config = config.get("decision_engine", {})
         self.high_threshold = float(de_config.get("high_confidence_threshold", 0.90))
         self.low_threshold = float(de_config.get("low_confidence_threshold", 0.60))
+
+        import os
+        retrieval_env = os.environ.get("RETRIEVAL_ENABLED")
+        if retrieval_env is not None:
+            self.retrieval_enabled = retrieval_env.lower() in ("true", "1", "yes")
+        else:
+            self.retrieval_enabled = config.get("retrieval", {}).get("enabled", True)
 
         # 2. Load Classifier model & tokenizer
         self.model_dir = Path(model_dir)
@@ -101,13 +108,22 @@ class DecisionEngine:
 
         # 3. Load Retriever index
         self.retriever_index_dir = Path(retriever_index_dir)
-        logger.info("Loading semantic retriever from: %s", self.retriever_index_dir)
-        self.retriever = SemanticRetriever(device=self.device_str)
-        self.retriever.load_index(self.retriever_index_dir)
+        if self.retrieval_enabled:
+            logger.info("Loading semantic retriever from: %s", self.retriever_index_dir)
+            self.retriever = SemanticRetriever(device=self.device_str)
+            self.retriever.load_index(self.retriever_index_dir)
+        else:
+            logger.info("Semantic retriever is disabled via configuration.")
+            self.retriever = None
 
         # 4. Load LLM Backend
         llm_config = config.get("llm", {})
-        self.llm_enabled = llm_config.get("enabled", True)
+        llm_env = os.environ.get("LLM_ENABLED")
+        if llm_env is not None:
+            self.llm_enabled = llm_env.lower() in ("true", "1", "yes")
+        else:
+            self.llm_enabled = llm_config.get("enabled", True)
+
         self.llm_provider = llm_config.get("provider", "huggingface")
         self.llm_model_id = llm_config.get("model_id", "microsoft/Phi-3-mini-4k-instruct")
         self.max_new_tokens = int(llm_config.get("max_new_tokens", 128))
@@ -394,9 +410,33 @@ class DecisionEngine:
                 "reply": f"Automated routing to category: {predicted_intent}",
             }
 
+        # Stage 1: Classifier-only check (if retrieval is disabled)
+        if not self.retrieval_enabled:
+            return {
+                "intent": predicted_intent,
+                "confidence": confidence,
+                "route": "human_escalation",
+                "retrieved_docs": [],
+                "llm_used": False,
+                "reply": f"Escalated to human support review. Retrieval is disabled, and confidence is below threshold ({confidence:.4f}).",
+            }
+
         # Tier 2: Mid Confidence (LLM Fallback + Retrieval)
         if confidence >= self.low_threshold:
             retrieved = self.retriever.retrieve(text, top_k=3)
+
+            # Stage 2: Classifier + Retrieval (if LLM is disabled)
+            if not self.llm_enabled:
+                cases_summary = "; ".join([f"Case: {doc['text']}" for doc in retrieved])
+                return {
+                    "intent": predicted_intent,
+                    "confidence": confidence,
+                    "route": "retrieval",
+                    "retrieved_docs": retrieved,
+                    "llm_used": False,
+                    "reply": f"LLM generation disabled. Similar historical cases retrieved: {cases_summary}",
+                }
+
             reply_draft = self.generate_draft_reply(
                 ticket_text=text,
                 predicted_intent=predicted_intent,
