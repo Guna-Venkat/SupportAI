@@ -1,0 +1,17 @@
+class_id,class_name,precision,recall,f1_score,support
+6,balance_not_updated_after_cheque_or_cash_deposit,0.0,0.0,0.0,2.0
+12,card_delivery_estimate,0.0,0.0,0.0,1.0
+17,card_payment_wrong_exchange_rate,0.0,0.0,0.0,1.0
+27,declined_transfer,0.0,0.0,0.0,1.0
+36,fiat_currency_support,0.0,0.0,0.0,0.0
+42,lost_or_stolen_phone,0.0,0.0,0.0,1.0
+43,order_physical_card,0.0,0.0,0.0,2.0
+50,receiving_money,0.0,0.0,0.0,1.0
+67,transfer_timing,0.0,0.0,0.0,1.0
+51,Refund_not_showing_up,0.0,0.0,0.0,1.0
+53,reverted_card_payment?,0.0,0.0,0.0,1.0
+57,top_up_by_card_charge,0.0,0.0,0.0,0.0
+75,wrong_amount_of_cash_received,0.0,0.0,0.0,1.0
+71,verify_top_up,0.0,0.0,0.0,1.0
+76,wrong_exchange_rate_for_cash_withdrawal,0.0,0.0,0.0,1.0
+48,pending_transfer,0.07142857142857142,1.0,0.13333333333333333,1.0

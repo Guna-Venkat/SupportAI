@@ -1,0 +1,6 @@
+phase: 00_Environment_Check
+python_version: 3.13.5 | packaged by Anaconda, Inc. | (main, Jun 12 2025, 16:37:03)
+  [MSC v.1929 64 bit (AMD64)]
+pytorch_version: 2.10.0+cpu
+cuda_available: false
+git_commit: cc1c1de64b28542d4db316ac79bd4990d31964a5

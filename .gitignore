@@ -72,9 +72,6 @@ ipython_config.py
 # -------------------------------------------------------
 # DVC
 # -------------------------------------------------------
-/data/
-/outputs/
-
 # Keep directory stubs and .gitkeep files
 !data/.gitkeep
 !outputs/.gitkeep

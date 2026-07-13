@@ -1,0 +1,30 @@
+{
+    "dataset_name": "customer_support_tickets_v1",
+    "total_rows": 13069,
+    "train_rows": 10458,
+    "val_rows": 1309,
+    "test_rows": 1302,
+    "unique_classes": 77,
+    "rare_classes_count": 3,
+    "rare_classes_threshold": 100,
+    "vocabulary_size": 4154,
+    "length_stats_train": {
+        "min": 3,
+        "max": 79,
+        "mean": 11.762765347102697,
+        "median": 10.0,
+        "p95": 29.0
+    },
+    "length_stats_overall": {
+        "min": 3,
+        "max": 79,
+        "mean": 11.72186089218762,
+        "median": 10.0,
+        "p95": 28.0
+    },
+    "duplicates": {
+        "train": 4,
+        "val": 0,
+        "test": 0
+    }
+}

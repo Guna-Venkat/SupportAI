@@ -1,0 +1,4 @@
+intent,total_count,train_count,percentage
+card_acceptance,99,79,0.7575177901905271
+virtual_card_not_working,81,65,0.6197872828831585
+contactless_not_working,75,60,0.5738771137807025

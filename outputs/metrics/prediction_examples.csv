@@ -1,0 +1,17 @@
+text,true_label,true_label_name,predicted_label,predicted_label_name,confidence
+explain to me why a transfer would be declined.,27,declined_transfer,48,pending_transfer,0.01640176586806774
+where do you mail physical cards?,43,order_physical_card,48,pending_transfer,0.016799699515104294
+"when i made a purchase last saturday, i was charged extra. did i receive the right exchange rate?",17,card_payment_wrong_exchange_rate,48,pending_transfer,0.016338521614670753
+how would my friend be able to send me money?,50,receiving_money,48,pending_transfer,0.016926271840929985
+i asked for more cash than what was received,75,wrong_amount_of_cash_received,48,pending_transfer,0.016201073303818703
+i can't see my cash deposit in my account.,6,balance_not_updated_after_cheque_or_cash_deposit,48,pending_transfer,0.01701970398426056
+why is there a pending time on my transfer?,48,pending_transfer,48,pending_transfer,0.016263823956251144
+do you charge for physical cards,43,order_physical_card,48,pending_transfer,0.016530398279428482
+i need a fast transfer from china? how fast will it be?,67,transfer_timing,48,pending_transfer,0.016780534759163857
+i am still waiting for a the cash i deposited this morning,6,balance_not_updated_after_cheque_or_cash_deposit,48,pending_transfer,0.015948735177516937
+the exchange rate for my withdrawal is wrong,76,wrong_exchange_rate_for_cash_withdrawal,48,pending_transfer,0.016650671139359474
+i am not able to make a purchase because there is an issue with my card,53,reverted_card_payment?,48,pending_transfer,0.016621673479676247
+what is the top up code for?,71,verify_top_up,48,pending_transfer,0.0168773103505373
+"my phone got stolen, how can i use the app?",42,lost_or_stolen_phone,36,fiat_currency_support,0.01608135551214218
+i am missing a refund.,51,Refund_not_showing_up,57,top_up_by_card_charge,0.016111496835947037
+when will my card be here?,12,card_delivery_estimate,48,pending_transfer,0.016828401014208794

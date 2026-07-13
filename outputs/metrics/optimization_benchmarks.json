@@ -1,0 +1,30 @@
+{
+    "PyTorch_FP32": {
+        "Latency (ms)": 31.882069999119267,
+        "Throughput (QPS)": 31.365592009164548,
+        "Disk Size (MB)": 255.64506149291992,
+        "RAM Usage (MB)": 165.33984375,
+        "Cold Start (s)": 0.09702440002001822
+    },
+    "PyTorch_INT8": {
+        "Latency (ms)": 62.568529992131516,
+        "Throughput (QPS)": 15.982475537235059,
+        "Disk Size (MB)": 132.34477519989014,
+        "RAM Usage (MB)": 3.453125,
+        "Cold Start (s)": 3.917599299980793
+    },
+    "ONNX_FP32": {
+        "Latency (ms)": 23.909800010733306,
+        "Throughput (QPS)": 41.82385463496524,
+        "Disk Size (MB)": 256.4924030303955,
+        "RAM Usage (MB)": 0.98828125,
+        "Cold Start (s)": 0.8074208999751136
+    },
+    "ONNX_INT8": {
+        "Latency (ms)": 15.29679999803193,
+        "Throughput (QPS)": 65.37314994826754,
+        "Disk Size (MB)": 64.87331867218018,
+        "RAM Usage (MB)": 0.68359375,
+        "Cold Start (s)": 0.28209050005534664
+    }
+}

@@ -1,0 +1,3 @@
+text,label,label_text,pred_linear_svm,is_correct,text_len_chars,text_len_words,pred_label_text
+this is a slightly longer query sequence,1,billing,2,False,40,7,apple_pay_or_google_pay
+another text query,0,card_lost,1,False,18,3,age_limit
