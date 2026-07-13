@@ -160,6 +160,7 @@ class ModelOptimizer:
     def benchmark_models(self) -> dict[str, Any]:
         """Runs performance diagnostics comparing PyTorch, ONNX, and INT8 models."""
         logger.info("Starting performance benchmarking suite...")
+        import gc
 
         splits = load_and_preprocess_dataset(None)
         test_df = splits["test"]
@@ -182,13 +183,14 @@ class ModelOptimizer:
 
         # 1. Benchmarking PyTorch (FP32)
         logger.info("Benchmarking PyTorch (FP32)...")
+        gc.collect()
+        ram_before = get_process_ram_mb()
         t0 = time.perf_counter()
         model_pt = AutoModelForSequenceClassification.from_pretrained(self.model_dir)
         model_pt.eval()
         cold_start_pt = time.perf_counter() - t0
         disk_pt = get_file_size_mb(self.model_dir / "model.safetensors")
 
-        ram_before = get_process_ram_mb()
         # Warmup
         run_pytorch_inference(model_pt, batches[0])
         ram_after = get_process_ram_mb()
@@ -203,16 +205,32 @@ class ModelOptimizer:
         avg_latency_pt = float(np.mean(latencies_pt) * 1000)  # ms
         throughput_pt = 1.0 / np.mean(latencies_pt) if latencies_pt else 0.0
 
+        # Accuracy
+        correct_pt = 0
+        total_pt = 0
+        with torch.no_grad():
+            for batch in batches:
+                logits = model_pt(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"]).logits
+                pred = torch.argmax(logits, dim=-1)
+                correct_pt += (pred == batch["labels"]).sum().item()
+                total_pt += len(batch["labels"])
+        acc_pt = (correct_pt / total_pt) if total_pt > 0 else 0.0
+
         results["PyTorch_FP32"] = {
+            "Accuracy": acc_pt,
             "Latency (ms)": avg_latency_pt,
             "Throughput (QPS)": throughput_pt,
             "Disk Size (MB)": disk_pt,
             "RAM Usage (MB)": ram_pt,
             "Cold Start (s)": cold_start_pt,
         }
+        del model_pt
+        gc.collect()
 
         # 2. Benchmarking PyTorch Quantized (INT8)
         logger.info("Benchmarking PyTorch Quantized (INT8)...")
+        gc.collect()
+        ram_before = get_process_ram_mb()
         t0 = time.perf_counter()
         model_pt_quant = AutoModelForSequenceClassification.from_pretrained(self.model_dir)
         model_pt_quant = torch.quantization.quantize_dynamic(
@@ -224,7 +242,6 @@ class ModelOptimizer:
         cold_start_pt_quant = time.perf_counter() - t0
         disk_pt_quant = get_file_size_mb(self.pytorch_quant_path)
 
-        ram_before = get_process_ram_mb()
         run_pytorch_inference(model_pt_quant, batches[0])
         ram_after = get_process_ram_mb()
         ram_pt_quant = max(0.0, ram_after - ram_before)
@@ -238,18 +255,34 @@ class ModelOptimizer:
         avg_latency_pt_quant = float(np.mean(latencies_pt_quant) * 1000)
         throughput_pt_quant = 1.0 / np.mean(latencies_pt_quant) if latencies_pt_quant else 0.0
 
+        # Accuracy
+        correct_pt_quant = 0
+        total_pt_quant = 0
+        with torch.no_grad():
+            for batch in batches:
+                logits = model_pt_quant(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"]).logits
+                pred = torch.argmax(logits, dim=-1)
+                correct_pt_quant += (pred == batch["labels"]).sum().item()
+                total_pt_quant += len(batch["labels"])
+        acc_pt_quant = (correct_pt_quant / total_pt_quant) if total_pt_quant > 0 else 0.0
+
         results["PyTorch_INT8"] = {
+            "Accuracy": acc_pt_quant,
             "Latency (ms)": avg_latency_pt_quant,
             "Throughput (QPS)": throughput_pt_quant,
             "Disk Size (MB)": disk_pt_quant,
             "RAM Usage (MB)": ram_pt_quant,
             "Cold Start (s)": cold_start_pt_quant,
         }
+        del model_pt_quant
+        gc.collect()
 
         # 3. Benchmarking ONNX (FP32)
         logger.info("Benchmarking ONNX (FP32)...")
         import onnxruntime as ort
 
+        gc.collect()
+        ram_before = get_process_ram_mb()
         t0 = time.perf_counter()
         sess_options = ort.SessionOptions()
         sess_options.intra_op_num_threads = 1
@@ -258,7 +291,6 @@ class ModelOptimizer:
         cold_start_onnx = time.perf_counter() - t0
         disk_onnx = get_file_size_mb(self.onnx_path)
 
-        ram_before = get_process_ram_mb()
         run_onnx_inference(session_onnx, batches[0])
         ram_after = get_process_ram_mb()
         ram_onnx = max(0.0, ram_after - ram_before)
@@ -272,23 +304,41 @@ class ModelOptimizer:
         avg_latency_onnx = float(np.mean(latencies_onnx) * 1000)
         throughput_onnx = 1.0 / np.mean(latencies_onnx) if latencies_onnx else 0.0
 
+        # Accuracy
+        correct_onnx = 0
+        total_onnx = 0
+        for batch in batches:
+            inputs = {
+                "input_ids": batch["input_ids"].numpy().astype(np.int64),
+                "attention_mask": batch["attention_mask"].numpy().astype(np.int64),
+            }
+            logits = session_onnx.run(None, inputs)[0]
+            pred = np.argmax(logits, axis=-1)
+            correct_onnx += np.sum(pred == batch["labels"].numpy())
+            total_onnx += len(batch["labels"])
+        acc_onnx = (correct_onnx / total_onnx) if total_onnx > 0 else 0.0
+
         results["ONNX_FP32"] = {
+            "Accuracy": acc_onnx,
             "Latency (ms)": avg_latency_onnx,
             "Throughput (QPS)": throughput_onnx,
             "Disk Size (MB)": disk_onnx,
             "RAM Usage (MB)": ram_onnx,
             "Cold Start (s)": cold_start_onnx,
         }
+        del session_onnx
+        gc.collect()
 
         # 4. Benchmarking ONNX Quantized (INT8)
         if self.onnx_quant_path.exists():
             logger.info("Benchmarking ONNX Quantized (INT8)...")
+            gc.collect()
+            ram_before = get_process_ram_mb()
             t0 = time.perf_counter()
             session_onnx_quant = ort.InferenceSession(str(self.onnx_quant_path), sess_options)
             cold_start_onnx_quant = time.perf_counter() - t0
             disk_onnx_quant = get_file_size_mb(self.onnx_quant_path)
 
-            ram_before = get_process_ram_mb()
             run_onnx_inference(session_onnx_quant, batches[0])
             ram_after = get_process_ram_mb()
             ram_onnx_quant = max(0.0, ram_after - ram_before)
@@ -304,13 +354,30 @@ class ModelOptimizer:
                 1.0 / np.mean(latencies_onnx_quant) if latencies_onnx_quant else 0.0
             )
 
+            # Accuracy
+            correct_onnx_quant = 0
+            total_onnx_quant = 0
+            for batch in batches:
+                inputs = {
+                    "input_ids": batch["input_ids"].numpy().astype(np.int64),
+                    "attention_mask": batch["attention_mask"].numpy().astype(np.int64),
+                }
+                logits = session_onnx_quant.run(None, inputs)[0]
+                pred = np.argmax(logits, axis=-1)
+                correct_onnx_quant += np.sum(pred == batch["labels"].numpy())
+                total_onnx_quant += len(batch["labels"])
+            acc_onnx_quant = (correct_onnx_quant / total_onnx_quant) if total_onnx_quant > 0 else 0.0
+
             results["ONNX_INT8"] = {
+                "Accuracy": acc_onnx_quant,
                 "Latency (ms)": avg_latency_onnx_quant,
                 "Throughput (QPS)": throughput_onnx_quant,
                 "Disk Size (MB)": disk_onnx_quant,
                 "RAM Usage (MB)": ram_onnx_quant,
                 "Cold Start (s)": cold_start_onnx_quant,
             }
+            del session_onnx_quant
+            gc.collect()
 
         # Save results
         save_metrics(results, self.metrics_dir / "optimization_benchmarks.json")

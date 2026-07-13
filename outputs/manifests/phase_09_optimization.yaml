@@ -1,0 +1,31 @@
+phase: 09_Optimization
+optimization_metrics:
+  PyTorch_FP32:
+    Accuracy: 0.9185867895545314
+    Latency (ms): 15.82355560722708
+    Throughput (QPS): 63.19692140136132
+    Disk Size (MB): 255.64506149291992
+    RAM Usage (MB): 166.29296875
+    Cold Start (s): 0.01717299991287291
+  PyTorch_INT8:
+    Accuracy: 0.9101382488479263
+    Latency (ms): 11.056480106658741
+    Throughput (QPS): 90.44469762105864
+    Disk Size (MB): 132.34477519989014
+    RAM Usage (MB): 268.1953125
+    Cold Start (s): 0.5975977999623865
+  ONNX_FP32:
+    Accuracy: 0.9185867895545314
+    Latency (ms): 21.713698308231073
+    Throughput (QPS): 46.05387740976981
+    Disk Size (MB): 256.43050384521484
+    RAM Usage (MB): 262.2890625
+    Cold Start (s): 0.5162738999351859
+  ONNX_INT8:
+    Accuracy: 0.9170506912442397
+    Latency (ms): 11.394008596037184
+    Throughput (QPS): 87.76542439574763
+    Disk Size (MB): 64.80999946594238
+    RAM Usage (MB): 71.37890625
+    Cold Start (s): 0.18804819998331368
+git_commit: 301987dee601e05014b46846834438d7a49c23d6

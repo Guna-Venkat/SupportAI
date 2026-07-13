@@ -1,0 +1,3 @@
+phase: 12_LLM_Fallback
+routing_decision_flow: Decision engine built and validated with fallback
+git_commit: 301987dee601e05014b46846834438d7a49c23d6
