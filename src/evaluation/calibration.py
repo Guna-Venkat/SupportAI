@@ -15,7 +15,8 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 import matplotlib
 
-matplotlib.use("Agg")
+if "ipykernel" not in sys.modules:
+    matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import torch

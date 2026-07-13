@@ -156,11 +156,17 @@ def save_yaml(data: Any, path: Path | str) -> None:
         data: Serializable data (dict, list, etc.).
         path: Path to target file.
     """
+    import json
+
     import yaml
 
     path = Path(path)
     _ensure_parent_exists(path)
 
     logger.info("Saving YAML artifact to: %s", path)
+
+    # Convert all custom types to standard Python primitives via JSON round-trip
+    serializable_data = json.loads(json.dumps(data, default=str))
+
     with open(path, "w", encoding="utf-8") as f:
-        yaml.safe_dump(data, f, default_flow_style=False, sort_keys=False)
+        yaml.safe_dump(serializable_data, f, default_flow_style=False, sort_keys=False)

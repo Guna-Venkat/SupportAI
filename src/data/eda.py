@@ -10,6 +10,7 @@ plots to the configured output folders.
 
 import json
 import os
+import sys
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -18,7 +19,8 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 import matplotlib
 
-matplotlib.use("Agg")
+if "ipykernel" not in sys.modules:
+    matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
