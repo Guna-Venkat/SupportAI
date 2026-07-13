@@ -24,7 +24,7 @@ from src.data.dataset import load_and_preprocess_dataset
 from src.evaluation.metrics import calculate_metrics
 from src.models.transformer.collator import DynamicPaddingCollator
 from src.models.transformer.dataset import TransformerTicketDataset
-from src.utils.artifacts import save_csv, save_metrics
+from src.utils.artifacts import save_csv, save_metrics, save_json
 from src.utils.config import load_config
 from src.utils.constants import OUTPUT_DIR
 from src.utils.logging_utils import get_logger
@@ -320,8 +320,9 @@ def train_model(
                 step=epoch + 1,
             )
 
-            # Export learning curves to csv
+            # Export learning curves to csv and json
             save_csv(pd.DataFrame(history), metrics_dir / "training_history.csv")
+            save_json(history, metrics_dir / "training_history.json")
 
             # 9. Early Stopping & Checkpoint saving logic
             if avg_val_loss < best_val_loss:

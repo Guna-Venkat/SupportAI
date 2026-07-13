@@ -1,0 +1,6 @@
+phase: 07_Model_Evaluation
+eval_metrics:
+  accuracy: 0.9185867895545314
+  macro_avg_f1: 0.9204597052489093
+  weighted_avg_f1: 0.9179924220192865
+git_commit: 37354aeb6f944f9626d6869d75347783182ba82b

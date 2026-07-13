@@ -1,0 +1,8 @@
+phase: 08_Calibration
+calibration_metrics:
+  optimized_temperature: 1.19392728805542
+  ece_before: 0.019559950532124837
+  ece_after: 0.039261148272571475
+  brier_before: 0.1178313070901938
+  brier_after: 0.11702445184080554
+git_commit: 37354aeb6f944f9626d6869d75347783182ba82b

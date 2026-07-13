@@ -24,7 +24,7 @@ import pandas as pd
 import seaborn as sns
 from sklearn.metrics import classification_report, confusion_matrix
 
-from src.utils.artifacts import save_csv, save_figure
+from src.utils.artifacts import save_csv, save_figure, save_json
 from src.utils.constants import OUTPUT_DIR
 from src.utils.logging_utils import get_logger
 
@@ -257,6 +257,9 @@ class ErrorAnalyzer:
             ),
             "top_confused_pairs": confused_intents.to_dict(orient="records"),
         }
+
+        # Save error summary JSON
+        save_json(summary, metrics_dir / "error_summary.json")
 
         logger.info(
             "Error analysis completed for '%s' | Total Errors: %d",
