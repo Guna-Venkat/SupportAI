@@ -1,7 +1,7 @@
 # SupportAI
 
 <p align="center">
-  <img src="docs/architecture.svg" alt="SupportAI Logo" width="480" />
+  <img src="docs/architecture.svg" alt="SupportAI Logo" width="720" />
 </p>
 
 <h3 align="center">SupportAI</h3>
