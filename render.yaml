@@ -1,0 +1,43 @@
+# SupportAI - Render Blueprint Deployment Configuration
+# ==============================================================
+# This configuration file defines the Render Blueprint specification
+# for deploying the SupportAI REST API to Render (https://render.com).
+#
+# Render will automatically discover this file and configure the service.
+#
+# To deploy:
+# 1. Commit and push this file to your Git repository.
+# 2. Go to the Render Dashboard (https://dashboard.render.com).
+# 3. Click "New" -> "Blueprint".
+# 4. Connect this Git repository. Render will handle the rest.
+# ==============================================================
+
+services:
+  - type: web
+    name: support-ai
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    
+    # Render's web services must listen on a port.
+    # We expose port 8000 (which matches our Dockerfile and FastAPI defaults).
+    # Render automatically routes traffic to this port.
+    envVars:
+      - key: PORT
+        value: 8000
+
+      # -- Application Toggles & Options --
+      
+      # Set TESTING to "true" to override the LLM to a tiny random model (hf-internal-testing/tiny-random-gpt2).
+      # This is highly recommended for Render's Free tier to save RAM and avoid download timeout.
+      - key: TESTING
+        value: "true"
+
+      # Enable/disable the FAISS semantic ticket retriever (Stage 2)
+      - key: RETRIEVAL_ENABLED
+        value: "true"
+
+      # Enable/disable the LLM generation (Stage 3)
+      # If running on Render's Free Tier (512MB RAM), keep this "false" or keep TESTING "true"
+      # because downloading/running a full LLM requires 8GB+ of memory.
+      - key: LLM_ENABLED
+        value: "true"
