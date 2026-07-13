@@ -36,3 +36,22 @@ pyyaml>=6.0.1
 python-dotenv>=1.0.0
 rich>=13.7.0
 scipy>=1.13.0
+
+# ONNX ecosystem
+onnx>=1.15.0
+onnxruntime>=1.17.0
+onnxscript>=0.7.0
+
+# Model interpretation and embeddings
+lime>=0.2.0
+sentence-transformers>=2.7.0
+faiss-cpu>=1.8.0
+
+# API and Web Server
+fastapi>=0.110.0
+uvicorn>=0.28.0
+pydantic>=2.6.0
+
+# Monitoring and System utilities
+prometheus-client>=0.20.0
+psutil
