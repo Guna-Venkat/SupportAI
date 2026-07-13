@@ -112,6 +112,7 @@ class DecisionEngine:
         self.llm_model_id = llm_config.get("model_id", "microsoft/Phi-3-mini-4k-instruct")
         self.max_new_tokens = int(llm_config.get("max_new_tokens", 128))
         self.llm_temp = float(llm_config.get("temperature", 0.2))
+        self.trust_remote_code = llm_config.get("trust_remote_code", False)
 
         # Provider configurations
         self.ollama_url = llm_config.get("ollama_url", "http://localhost:11434")
@@ -129,7 +130,7 @@ class DecisionEngine:
                 )
                 try:
                     self.llm_tokenizer = AutoTokenizer.from_pretrained(
-                        self.llm_model_id, trust_remote_code=True
+                        self.llm_model_id, trust_remote_code=self.trust_remote_code
                     )
                     if self.llm_tokenizer.pad_token is None:
                         self.llm_tokenizer.pad_token = self.llm_tokenizer.eos_token
@@ -142,7 +143,7 @@ class DecisionEngine:
                         self.llm_model_id,
                         torch_dtype=torch_dtype,
                         low_cpu_mem_usage=True,
-                        trust_remote_code=True,
+                        trust_remote_code=self.trust_remote_code,
                     )
                     self.llm_model.to(self.device)
                     self.llm_model.eval()
