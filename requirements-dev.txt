@@ -9,3 +9,5 @@ ruff>=0.4.0
 ipykernel>=6.29.0
 notebook>=7.2.0
 httpx>=0.27.0
+ipywidgets>=8.1.0
+

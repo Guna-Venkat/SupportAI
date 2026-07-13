@@ -16,7 +16,7 @@ from typing import Any
 
 import yaml
 
-from src.utils.constants import CONFIG_DIR
+from src.utils.constants import CONFIG_DIR, BASE_DIR
 from src.utils.logging_utils import get_logger
 
 logger = get_logger(__name__)
@@ -61,11 +61,13 @@ def load_config(overlay_path: Path | str | None = None) -> dict[str, Any]:
 
     if overlay_path is not None:
         overlay_path = Path(overlay_path)
-        # Try resolving relative to current directory first, fallback to CONFIG_DIR
+        # Try resolving relative to current directory first, then BASE_DIR, then CONFIG_DIR
         if overlay_path.is_absolute():
             resolved_overlay = overlay_path
         elif overlay_path.exists():
             resolved_overlay = overlay_path.resolve()
+        elif (BASE_DIR / overlay_path).exists():
+            resolved_overlay = (BASE_DIR / overlay_path).resolve()
         else:
             resolved_overlay = CONFIG_DIR / overlay_path
 
