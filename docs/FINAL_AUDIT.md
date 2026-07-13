@@ -7,7 +7,7 @@ This report summarizes the final quality state of the SupportAI repository. It e
 ## 1. Repository Health & Validation Summary
 
 Every quality gate has been executed and validated against a clean checkout of the repository:
-- **Notebooks static audit**: **100% Passed**. All 13 Jupyter notebooks were statically audited for syntax correctness and internal/external import resolution. Zero issues were found.
+- **Notebooks static audit**: **100% Passed**. All 16 Jupyter notebooks were statically audited for syntax correctness and internal/external import resolution. Zero issues were found.
 - **Unit & integration test suite**: **100% Passed**. The complete suite of **129 tests** passed successfully (`pytest` execution time ~10.5 minutes), covering:
   - Configuration parsing and overlays.
   - Data preprocessing, schema validation, and stratification.
