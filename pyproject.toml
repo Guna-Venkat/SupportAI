@@ -73,7 +73,10 @@ calibrate_model = "src.evaluation.calibration:main"
 optimize_model = "src.models.transformer.optimization:main"
 explain_prediction = "src.evaluation.explainability:main"
 retrieve_tickets = "src.models.transformer.retrieval:main"
+build_retrieval_index = "src.models.transformer.retrieval:build_index_main"
 process_ticket = "src.models.transformer.decision_engine:main"
+run_api = "src.api.app:run_api_main"
+
 
 
 

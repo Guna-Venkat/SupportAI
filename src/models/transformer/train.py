@@ -24,7 +24,7 @@ from src.data.dataset import load_and_preprocess_dataset
 from src.evaluation.metrics import calculate_metrics
 from src.models.transformer.collator import DynamicPaddingCollator
 from src.models.transformer.dataset import TransformerTicketDataset
-from src.utils.artifacts import save_csv, save_metrics, save_json
+from src.utils.artifacts import save_csv, save_json, save_metrics
 from src.utils.config import load_config
 from src.utils.constants import OUTPUT_DIR
 from src.utils.logging_utils import get_logger
@@ -76,8 +76,12 @@ def train_model(
     lr = float(train_cfg.get("learning_rate", config.get("learning_rate", 2e-5)))
     weight_decay = float(train_cfg.get("weight_decay", config.get("weight_decay", 0.01)))
     max_length = config.get("max_length", 128)
-    patience = train_cfg.get("early_stopping_patience", train_cfg.get("patience", config.get("patience", 3)))
-    gradient_accumulation_steps = train_cfg.get("gradient_accumulation_steps", config.get("gradient_accumulation_steps", 1))
+    patience = train_cfg.get(
+        "early_stopping_patience", train_cfg.get("patience", config.get("patience", 3))
+    )
+    gradient_accumulation_steps = train_cfg.get(
+        "gradient_accumulation_steps", config.get("gradient_accumulation_steps", 1)
+    )
 
     # 3. Load dataset splits
     splits = load_and_preprocess_dataset(config_overlay)

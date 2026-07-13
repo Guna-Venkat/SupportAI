@@ -108,42 +108,90 @@ class DecisionEngine:
         # 4. Load LLM Backend
         llm_config = config.get("llm", {})
         self.llm_enabled = llm_config.get("enabled", True)
+        self.llm_provider = llm_config.get("provider", "huggingface")
         self.llm_model_id = llm_config.get("model_id", "microsoft/Phi-3-mini-4k-instruct")
         self.max_new_tokens = int(llm_config.get("max_new_tokens", 128))
         self.llm_temp = float(llm_config.get("temperature", 0.2))
 
+        # Provider configurations
+        self.ollama_url = llm_config.get("ollama_url", "http://localhost:11434")
+        self.ollama_model = llm_config.get("ollama_model", "qwen2.5:0.5b")
+        self.gguf_path = llm_config.get("gguf_path", "")
+
         self.llm_pipeline = None
+        self.gguf_model = None
+
         if self.llm_enabled:
-            logger.info(
-                "Loading LLM backend model ONCE into cache: %s (low_cpu_mem_usage=True)",
-                self.llm_model_id,
-            )
-            try:
-                self.llm_tokenizer = AutoTokenizer.from_pretrained(
-                    self.llm_model_id, trust_remote_code=True
-                )
-                # Pad token configuration
-                if self.llm_tokenizer.pad_token is None:
-                    self.llm_tokenizer.pad_token = self.llm_tokenizer.eos_token
-
-                self.llm_model = AutoModelForCausalLM.from_pretrained(
+            if self.llm_provider == "huggingface":
+                logger.info(
+                    "Loading Hugging Face LLM backend: %s",
                     self.llm_model_id,
-                    torch_dtype=torch.float32,
-                    low_cpu_mem_usage=True,
-                    trust_remote_code=True,
                 )
-                self.llm_model.to(self.device)
-                self.llm_model.eval()
+                try:
+                    self.llm_tokenizer = AutoTokenizer.from_pretrained(
+                        self.llm_model_id, trust_remote_code=True
+                    )
+                    if self.llm_tokenizer.pad_token is None:
+                        self.llm_tokenizer.pad_token = self.llm_tokenizer.eos_token
 
-                self.llm_pipeline = pipeline(
-                    "text-generation",
-                    model=self.llm_model,
-                    tokenizer=self.llm_tokenizer,
-                    device=self.device,
+                    # Dynamically choose precision to optimize RAM/VRAM usage
+                    torch_dtype = torch.float16 if self.device.type == "cuda" else torch.float32
+                    logger.info("Using torch_dtype=%s for LLM backend", torch_dtype)
+
+                    self.llm_model = AutoModelForCausalLM.from_pretrained(
+                        self.llm_model_id,
+                        torch_dtype=torch_dtype,
+                        low_cpu_mem_usage=True,
+                        trust_remote_code=True,
+                    )
+                    self.llm_model.to(self.device)
+                    self.llm_model.eval()
+
+                    # Omit 'device' parameter in pipeline constructor to
+                    # prevent torch_dtype/device warnings
+                    self.llm_pipeline = pipeline(
+                        "text-generation",
+                        model=self.llm_model,
+                        tokenizer=self.llm_tokenizer,
+                    )
+                except Exception as e:
+                    logger.error("Failed to initialise Hugging Face LLM: %s", e)
+                    self.llm_enabled = False
+
+            elif self.llm_provider == "ollama":
+                logger.info(
+                    "Initialized Ollama LLM provider (will connect to URL: %s, model: %s)",
+                    self.ollama_url,
+                    self.ollama_model,
                 )
-            except Exception as e:
-                logger.error("Failed to initialise LLM backend %s: %s", self.llm_model_id, e)
-                # Fallback to disabled LLM state on error
+
+            elif self.llm_provider == "gguf":
+                if not self.gguf_path:
+                    logger.error("GGUF LLM provider enabled but no gguf_path is configured.")
+                    self.llm_enabled = False
+                else:
+                    logger.info("Loading GGUF LLM from path: %s", self.gguf_path)
+                    try:
+                        import llama_cpp
+
+                        self.gguf_model = llama_cpp.Llama(
+                            model_path=str(self.gguf_path),
+                            n_ctx=512,
+                            n_threads=4,
+                            verbose=False,
+                        )
+                    except ImportError as e:
+                        logger.error(
+                            "llama-cpp-python is required to run the GGUF backend: %s. "
+                            "Please run 'pip install llama-cpp-python' or switch provider.",
+                            e,
+                        )
+                        self.llm_enabled = False
+                    except Exception as e:
+                        logger.error("Failed to load GGUF model: %s", e)
+                        self.llm_enabled = False
+            else:
+                logger.warning("Unknown LLM provider: %s. Disabling LLM.", self.llm_provider)
                 self.llm_enabled = False
 
     def predict_intent(self, text: str) -> tuple[str, float]:
@@ -184,7 +232,7 @@ class DecisionEngine:
         confidence: float,
         retrieved_docs: list[dict[str, Any]],
     ) -> str:
-        """Generates a contextual reply draft using the cached LLM pipeline.
+        """Generates a contextual reply draft using the configured LLM provider backend.
 
         Args:
             ticket_text: The user ticket text.
@@ -195,7 +243,7 @@ class DecisionEngine:
         Returns:
             Generated response string.
         """
-        if not self.llm_enabled or self.llm_pipeline is None:
+        if not self.llm_enabled:
             return "LLM generator is currently disabled or unavailable."
 
         # Build prompt using retrieved cases and intent metadata
@@ -223,42 +271,104 @@ class DecisionEngine:
             },
         ]
 
-        try:
-            # Use tokenizer chat template if available
-            prompt = self.llm_tokenizer.apply_chat_template(
-                messages, tokenize=False, add_generation_prompt=True
+        if self.llm_provider == "huggingface":
+            if self.llm_pipeline is None:
+                return "LLM generator (HuggingFace) is currently disabled or unavailable."
+
+            try:
+                # Use tokenizer chat template if available
+                prompt = self.llm_tokenizer.apply_chat_template(
+                    messages, tokenize=False, add_generation_prompt=True
+                )
+            except Exception:
+                # Fallback plain prompt structure
+                prompt = (
+                    f"System: You are a helpful customer support assistant. Draft a concise reply "
+                    f"to the Customer Ticket using similar historical cases.\n\n"
+                    f"Customer Ticket:\n{ticket_text}\n\n"
+                    f"Predicted Intent: {predicted_intent}\n"
+                    f"Confidence: {confidence:.4f}\n\n"
+                    f"Similar Historical Cases:\n{cases_text}\n"
+                    f"Assistant:"
+                )
+
+            # Generate reply
+            outputs = self.llm_pipeline(
+                prompt,
+                max_new_tokens=self.max_new_tokens,
+                temperature=self.llm_temp,
+                do_sample=self.llm_temp > 0.0,
+                pad_token_id=self.llm_tokenizer.pad_token_id,
             )
-        except Exception:
-            # Fallback plain prompt structure
+            full_text = outputs[0]["generated_text"]
+
+            # Clean generated text to extract assistant portion only
+            if "Assistant:" in full_text:
+                reply = full_text.split("Assistant:")[-1].strip()
+            elif "<|assistant|>" in full_text:
+                reply = full_text.split("<|assistant|>")[-1].strip()
+            else:
+                reply = full_text[len(prompt) :].strip()
+
+            return reply
+
+        elif self.llm_provider == "ollama":
+            import urllib.error
+            import urllib.request
+
+            payload = {
+                "model": self.ollama_model,
+                "messages": messages,
+                "stream": False,
+                "options": {
+                    "temperature": self.llm_temp,
+                    "num_predict": self.max_new_tokens,
+                },
+            }
+            try:
+                req_data = json.dumps(payload).encode("utf-8")
+                req = urllib.request.Request(  # noqa: S310
+                    f"{self.ollama_url}/api/chat",
+                    data=req_data,
+                    headers={"Content-Type": "application/json"},
+                )
+                with urllib.request.urlopen(req, timeout=10) as response:  # noqa: S310
+                    resp_data = json.loads(response.read().decode("utf-8"))
+                    return resp_data["message"]["content"].strip()
+            except urllib.error.URLError as e:
+                logger.error("Ollama connection failed: %s", e)
+                return f"Error: Ollama service unreachable at {self.ollama_url} ({e.reason})"
+            except Exception as e:
+                logger.error("Ollama query failed: %s", e)
+                return f"Error: Ollama query failed: {e!s}"
+
+        elif self.llm_provider == "gguf":
+            if self.gguf_model is None:
+                return "LLM generator (GGUF) is currently disabled or unavailable."
+
             prompt = (
-                f"System: You are a helpful customer support assistant. Draft a concise reply "
-                f"to the Customer Ticket using similar historical cases.\n\n"
-                f"Customer Ticket:\n{ticket_text}\n\n"
+                f"<|system|>\nYou are a helpful customer support assistant. Draft a concise reply "
+                f"to the Customer Ticket using similar historical cases.<|end|>\n"
+                f"<|user|>\nCustomer Ticket:\n{ticket_text}\n\n"
                 f"Predicted Intent: {predicted_intent}\n"
                 f"Confidence: {confidence:.4f}\n\n"
                 f"Similar Historical Cases:\n{cases_text}\n"
-                f"Assistant:"
+                f"Generate a concise draft reply.<|end|>\n"
+                f"<|assistant|>\n"
             )
+            try:
+                outputs = self.gguf_model(
+                    prompt,
+                    max_tokens=self.max_new_tokens,
+                    temperature=self.llm_temp,
+                    stop=["<|end|>", "\n\n\n", "Customer Ticket:"],
+                )
+                return outputs["choices"][0]["text"].strip()
+            except Exception as e:
+                logger.error("GGUF generation failed: %s", e)
+                return f"Error: GGUF generation failed: {e!s}"
 
-        # Generate reply
-        outputs = self.llm_pipeline(
-            prompt,
-            max_new_tokens=self.max_new_tokens,
-            temperature=self.llm_temp,
-            do_sample=self.llm_temp > 0.0,
-            pad_token_id=self.llm_tokenizer.pad_token_id,
-        )
-        full_text = outputs[0]["generated_text"]
-
-        # Clean generated text to extract assistant portion only
-        if "Assistant:" in full_text:
-            reply = full_text.split("Assistant:")[-1].strip()
-        elif "<|assistant|>" in full_text:
-            reply = full_text.split("<|assistant|>")[-1].strip()
-        else:
-            reply = full_text[len(prompt) :].strip()
-
-        return reply
+        return "LLM generator is currently disabled or unavailable."
 
     def route_ticket(self, text: str) -> dict[str, Any]:
         """Routes support ticket using the 3-tier decision engine logic.

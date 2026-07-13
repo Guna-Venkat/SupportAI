@@ -16,7 +16,7 @@ from typing import Any
 
 import yaml
 
-from src.utils.constants import CONFIG_DIR, BASE_DIR
+from src.utils.constants import BASE_DIR, CONFIG_DIR
 from src.utils.logging_utils import get_logger
 
 logger = get_logger(__name__)

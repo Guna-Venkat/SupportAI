@@ -210,7 +210,9 @@ class ModelOptimizer:
         total_pt = 0
         with torch.no_grad():
             for batch in batches:
-                logits = model_pt(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"]).logits
+                logits = model_pt(
+                    input_ids=batch["input_ids"], attention_mask=batch["attention_mask"]
+                ).logits
                 pred = torch.argmax(logits, dim=-1)
                 correct_pt += (pred == batch["labels"]).sum().item()
                 total_pt += len(batch["labels"])
@@ -260,7 +262,9 @@ class ModelOptimizer:
         total_pt_quant = 0
         with torch.no_grad():
             for batch in batches:
-                logits = model_pt_quant(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"]).logits
+                logits = model_pt_quant(
+                    input_ids=batch["input_ids"], attention_mask=batch["attention_mask"]
+                ).logits
                 pred = torch.argmax(logits, dim=-1)
                 correct_pt_quant += (pred == batch["labels"]).sum().item()
                 total_pt_quant += len(batch["labels"])
@@ -366,7 +370,9 @@ class ModelOptimizer:
                 pred = np.argmax(logits, axis=-1)
                 correct_onnx_quant += np.sum(pred == batch["labels"].numpy())
                 total_onnx_quant += len(batch["labels"])
-            acc_onnx_quant = (correct_onnx_quant / total_onnx_quant) if total_onnx_quant > 0 else 0.0
+            acc_onnx_quant = (
+                (correct_onnx_quant / total_onnx_quant) if total_onnx_quant > 0 else 0.0
+            )
 
             results["ONNX_INT8"] = {
                 "Accuracy": acc_onnx_quant,

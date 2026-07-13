@@ -430,3 +430,17 @@ def explain_ticket(request: ExplainRequest):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Explainability generation failed: {e!s}",
         ) from e
+
+
+def run_api_main() -> None:
+    """CLI entrypoint to start FastAPI uvicorn production server."""
+    import argparse
+
+    import uvicorn
+
+    parser = argparse.ArgumentParser(description="Start SupportAI REST API server.")
+    parser.add_argument("--host", type=str, default="0.0.0.0", help="Host interface to bind.")  # noqa: S104
+    parser.add_argument("--port", type=int, default=8000, help="Port to listen.")
+    args = parser.parse_args()
+
+    uvicorn.run("src.api.app:app", host=args.host, port=args.port, reload=False)

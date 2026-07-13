@@ -331,5 +331,27 @@ def main() -> None:
     console.print()
 
 
+def build_index_main() -> None:
+    """CLI entrypoint to construct FAISS index from local dataset Parquet."""
+    parser = argparse.ArgumentParser(description="Construct FAISS semantic search database index.")
+    parser.add_argument(
+        "--index_dir",
+        type=str,
+        default=str(OUTPUT_DIR / "retrieval_index"),
+        help="Directory to save the built index.",
+    )
+    args = parser.parse_args()
+
+    index_dir = Path(args.index_dir)
+    console.print("[yellow]Building semantic retrieval index from test dataset split...[/yellow]")
+    splits = load_and_preprocess_dataset()
+    corpus = splits["test"]["text"].tolist()
+
+    retriever = SemanticRetriever()
+    retriever.build_index(corpus)
+    retriever.save_index(index_dir)
+    console.print(f"[bold green]Successfully built and saved index to {index_dir}[/bold green]")
+
+
 if __name__ == "__main__":
     main()

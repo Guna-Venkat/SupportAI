@@ -48,9 +48,10 @@ python benchmark.py
 
 | Model | Accuracy | ECE | Latency | Throughput | Memory (MB) | Disk Size (MB) | Cold Start |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Linear SVM** | 88.24% | 0.7914 | 0.66 ms | 1515.6 QPS | 0.1 MB | 3.1 MB | 0.144 s |
-| **PyTorch FP32** | 1.60% | 0.0004 | 27.48 ms | 36.4 QPS | 168.7 MB | 256.3 MB | 0.944 s |
-| **ONNX INT8** | 1.60% | 0.0004 | 17.08 ms | 58.5 QPS | 1.0 MB | 64.9 MB | 0.433 s |
+| **Linear SVM** | 90.71% | 0.0791 | 0.66 ms | 1515.6 QPS | 0.1 MB | 3.3 MB | 0.144 s |
+| **PyTorch FP32** | 91.86% | 0.0196 | 15.82 ms | 63.2 QPS | 166.3 MB | 255.6 MB | 0.017 s |
+| **ONNX INT8** | 91.71% | 0.0196 | 11.39 ms | 87.8 QPS | 71.4 MB | 64.8 MB | 0.188 s |
+
 
 ---
 

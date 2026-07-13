@@ -51,8 +51,12 @@ decision_engine:
 
 llm:
   enabled: true
-  provider: "huggingface"
+  provider: "huggingface" # options: "huggingface", "ollama", "gguf"
   model_id: "microsoft/Phi-3-mini-4k-instruct"
   max_new_tokens: 128
   temperature: 0.2
+  ollama_url: "http://localhost:11434"
+  ollama_model: "qwen2.5:0.5b"
+  gguf_path: ""
+
 
