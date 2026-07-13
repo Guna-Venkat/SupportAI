@@ -147,3 +147,20 @@ def save_figure(fig: Any, path: Path | str) -> None:
     logger.info("Saving visualization figure to: %s", path)
     # Ensure correct bbox settings to prevent label clipping
     fig.savefig(path, bbox_inches="tight", dpi=300)
+
+
+def save_yaml(data: Any, path: Path | str) -> None:
+    """Saves structured Python collections to YAML.
+
+    Args:
+        data: Serializable data (dict, list, etc.).
+        path: Path to target file.
+    """
+    import yaml
+
+    path = Path(path)
+    _ensure_parent_exists(path)
+
+    logger.info("Saving YAML artifact to: %s", path)
+    with open(path, "w", encoding="utf-8") as f:
+        yaml.safe_dump(data, f, default_flow_style=False, sort_keys=False)

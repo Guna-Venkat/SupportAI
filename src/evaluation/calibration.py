@@ -6,10 +6,16 @@ calculations, Brier Scores, and diagnostic plotting comparisons.
 """
 
 import argparse
+import os
 import sys
 from pathlib import Path
 from typing import Any
 
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
+import matplotlib
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import torch

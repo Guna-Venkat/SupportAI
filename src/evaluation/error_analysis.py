@@ -8,10 +8,16 @@ failure modes, most confused intent pairs, and renders confusion heatmaps.
 """
 
 import argparse
+import os
 import sys
 from pathlib import Path
 from typing import Any
 
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
+import matplotlib
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns

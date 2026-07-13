@@ -6,9 +6,15 @@ CLI commands to train and evaluate classical machine learning baselines.
 
 import argparse
 import json
+import os
 import time
 from pathlib import Path
 
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
+import matplotlib
+
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import seaborn as sns
 
