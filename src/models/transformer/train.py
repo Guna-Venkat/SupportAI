@@ -69,13 +69,15 @@ def train_model(
     if model_name == "tfidf_classifier":
         model_name = "distilbert-base-uncased"
 
-    epochs = 1 if smoke_run else config.get("epochs", 3)
-    batch_size = 4 if smoke_run else config.get("batch_size", 16)
-    lr = float(config.get("learning_rate", 2e-5))
-    weight_decay = float(config.get("weight_decay", 0.01))
+    # Support both nested 'train' dictionary overrides (from train.yaml) and top-level defaults
+    train_cfg = config.get("train", {})
+    epochs = 1 if smoke_run else train_cfg.get("epochs", config.get("epochs", 3))
+    batch_size = 4 if smoke_run else train_cfg.get("batch_size", config.get("batch_size", 16))
+    lr = float(train_cfg.get("learning_rate", config.get("learning_rate", 2e-5)))
+    weight_decay = float(train_cfg.get("weight_decay", config.get("weight_decay", 0.01)))
     max_length = config.get("max_length", 128)
-    patience = config.get("patience", 3)
-    gradient_accumulation_steps = config.get("gradient_accumulation_steps", 1)
+    patience = train_cfg.get("early_stopping_patience", train_cfg.get("patience", config.get("patience", 3)))
+    gradient_accumulation_steps = train_cfg.get("gradient_accumulation_steps", config.get("gradient_accumulation_steps", 1))
 
     # 3. Load dataset splits
     splits = load_and_preprocess_dataset(config_overlay)
@@ -147,7 +149,30 @@ def train_model(
     # Mixed precision setup
     use_amp = device.type == "cuda"
     scaler = torch.amp.GradScaler("cuda") if use_amp else None
-    logger.info("Mixed precision training (AMP) enabled: %s", use_amp)
+
+    # Print active hyperparameters at startup
+    config_block = (
+        "\n==========================\n"
+        "Training Configuration\n"
+        "==========================\n"
+        f"Model: {model_name}\n"
+        f"Train samples: {len(train_df)}\n"
+        f"Validation samples: {len(val_df)}\n"
+        f"Epochs: {epochs}\n"
+        f"Batch Size: {batch_size}\n"
+        f"Learning Rate: {lr:.0e}\n"
+        f"Weight Decay: {weight_decay}\n"
+        f"Warmup Ratio: 0.10\n"
+        f"Scheduler: Linear\n"
+        f"Max Length: {max_length}\n"
+        f"Device: {device.type}\n"
+        f"Mixed Precision: {use_amp}\n"
+        f"Gradient Accumulation: {gradient_accumulation_steps}\n"
+        f"Early Stopping: {patience}\n"
+        f"Seed: {seed}\n"
+        "=========================="
+    )
+    logger.info(config_block)
 
     # 7. Resume Checkpoint loading
     start_epoch = 0
