@@ -1,0 +1,14 @@
+[console_scripts]
+analyze_errors = src.evaluation.error_analysis:main
+build_retrieval_index = src.models.transformer.retrieval:build_index_main
+calibrate_model = src.evaluation.calibration:main
+evaluate_baselines = src.models.baselines.cli:evaluate_main
+evaluate_transformer = src.evaluation.evaluation_runner:main
+explain_prediction = src.evaluation.explainability:main
+optimize_model = src.models.transformer.optimization:main
+process_ticket = src.models.transformer.decision_engine:main
+retrieve_tickets = src.models.transformer.retrieval:main
+run_api = src.api.app:run_api_main
+supportai = src.cli:main
+train_baselines = src.models.baselines.cli:train_main
+train_transformer = src.models.transformer.train:main

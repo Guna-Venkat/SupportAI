@@ -1,0 +1,6 @@
+{
+  "investigation": "LLM Fallback Output Mismatch",
+  "root_cause": "The notebook '12_LLM_Fallback.ipynb' overrides the default LLM 'model_id' to 'hf-internal-testing/tiny-random-gpt2'. This is a mock model with randomly initialized weights used by Hugging Face internally for unit testing. Since it has never been trained on language modeling, it generates gibberish output.",
+  "remedy": "Replace the mock model in the notebook config (Cell 9) with a valid, trained instruction-tuned model (e.g., 'Qwen/Qwen2.5-0.5B-Instruct' or 'microsoft/Phi-3-mini-4k-instruct').",
+  "config_file_reference": "In 'configs/default.yaml', the default is correctly set to 'microsoft/Phi-3-mini-4k-instruct'."
+}

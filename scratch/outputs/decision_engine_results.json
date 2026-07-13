@@ -1,0 +1,64 @@
+{
+  "high_confidence": {
+    "intent": "passcode_forgotten",
+    "confidence": 0.9707167744636536,
+    "route": "classifier",
+    "retrieved_docs": [],
+    "llm_used": false,
+    "reply": "Automated routing to category: passcode_forgotten"
+  },
+  "mid_confidence_fallback": {
+    "intent": "get_physical_card",
+    "confidence": 0.42254090309143066,
+    "route": "fallback",
+    "retrieved_docs": [
+      {
+        "rank": 1,
+        "index": 1131,
+        "score": 0.8320213556289673,
+        "text": "how do i reset my pin, i can't seem to use my card?"
+      },
+      {
+        "rank": 2,
+        "index": 1284,
+        "score": 0.7538939118385315,
+        "text": "do you know how to change my card pin?"
+      },
+      {
+        "rank": 3,
+        "index": 735,
+        "score": 0.7117278575897217,
+        "text": "what do i do with my card pin?"
+      }
+    ],
+    "llm_used": true,
+    "reply": "Mar Mar Mar Mar Mar Mar Mar Mar Mar MarR through through through through through through through through|| compjectjectjectjectjectjectjectject"
+  },
+  "low_confidence_escalation": {
+    "intent": "exchange_via_app",
+    "confidence": 0.43740978837013245,
+    "route": "fallback",
+    "retrieved_docs": [
+      {
+        "rank": 1,
+        "index": 184,
+        "score": 0.19058501720428467,
+        "text": "show me the source of my money."
+      },
+      {
+        "rank": 2,
+        "index": 300,
+        "score": 0.17804765701293945,
+        "text": "what is the word?"
+      },
+      {
+        "rank": 3,
+        "index": 1038,
+        "score": 0.1728249490261078,
+        "text": "someone stole my money"
+      }
+    ],
+    "llm_used": true,
+    "reply": "ordordordord%%%%%%%%%%%%%%iriririririririririririr"
+  }
+}

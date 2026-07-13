@@ -1,0 +1,119 @@
+Metadata-Version: 2.4
+Name: supportai
+Version: 0.1.0
+Summary: Lightweight customer-support ticket routing system with calibrated ML inference.
+Author: SupportAI Team
+License: MIT
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: torch>=2.2.0
+Requires-Dist: transformers>=4.40.0
+Requires-Dist: datasets>=2.19.0
+Requires-Dist: tokenizers>=0.19.0
+Requires-Dist: accelerate>=0.30.0
+Requires-Dist: onnx>=1.15.0
+Requires-Dist: onnxruntime>=1.17.0
+Requires-Dist: onnxscript>=0.7.0
+Requires-Dist: scikit-learn>=1.4.0
+Requires-Dist: imbalanced-learn>=0.12.0
+Requires-Dist: pandas>=2.2.0
+Requires-Dist: numpy>=1.26.0
+Requires-Dist: pyarrow>=15.0.0
+Requires-Dist: mlflow>=2.12.0
+Requires-Dist: dvc>=3.50.0
+Requires-Dist: matplotlib>=3.8.0
+Requires-Dist: seaborn>=0.13.0
+Requires-Dist: tqdm>=4.66.0
+Requires-Dist: pyyaml>=6.0.1
+Requires-Dist: python-dotenv>=1.0.0
+Requires-Dist: rich>=13.7.0
+Requires-Dist: scipy>=1.13.0
+Requires-Dist: lime>=0.2.0
+Requires-Dist: sentence-transformers>=2.7.0
+Requires-Dist: faiss-cpu>=1.8.0
+Requires-Dist: fastapi>=0.110.0
+Requires-Dist: uvicorn>=0.28.0
+Requires-Dist: pydantic>=2.6.0
+Requires-Dist: prometheus-client>=0.20.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.1.0; extra == "dev"
+Requires-Dist: pytest-cov>=5.0.0; extra == "dev"
+Requires-Dist: black>=24.4.0; extra == "dev"
+Requires-Dist: ruff>=0.4.0; extra == "dev"
+Requires-Dist: ipykernel>=6.29.0; extra == "dev"
+Requires-Dist: notebook>=7.2.0; extra == "dev"
+Requires-Dist: httpx>=0.27.0; extra == "dev"
+Dynamic: license-file
+
+# SupportAI
+
+SupportAI is a lightweight, calibrated customer support ticket routing system running efficiently on commodity CPU hardware.
+
+## Architecture
+
+![SupportAI Architecture](docs/architecture.svg)
+
+- **FastAPI Gateway**: Serves the REST API, generates request IDs, and collects telemetry metrics.
+- **Decision Engine**: Implements a confidence-based routing threshold to bypass heavy LLM generation.
+- **Classifier**: DistilBERT model optimized to INT8 ONNX, calibrated with Temperature Scaling.
+- **Semantic Retriever**: Utilizes FAISS index for vector similarity search over historical cases.
+- **LLM Fallback**: Generates draft replies when intent classification confidence is low.
+
+---
+
+## Quick Start
+
+### 1. Installation
+
+```bash
+# Clone and install dependencies
+git clone <repo-url> SupportAI
+cd SupportAI
+pip install -e ".[dev]"
+```
+
+### 2. Run the Web Demo
+
+Serve the API and access the interactive web interface:
+
+```bash
+uvicorn src.api.app:app --host 0.0.0.0 --port 8000
+```
+Open [http://localhost:8000/](http://localhost:8000/) in your browser.
+
+---
+
+## Performance Benchmarks
+
+Run the benchmarking suite locally:
+
+```bash
+python benchmark.py
+```
+
+### Results (CPU-only)
+
+| Model | Accuracy | ECE | Latency | Throughput | Memory (MB) | Disk Size (MB) | Cold Start |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Linear SVM** | 88.24% | 0.7914 | 0.66 ms | 1515.6 QPS | 0.1 MB | 3.1 MB | 0.144 s |
+| **PyTorch FP32** | 1.60% | 0.0004 | 27.48 ms | 36.4 QPS | 168.7 MB | 256.3 MB | 0.944 s |
+| **ONNX INT8** | 1.60% | 0.0004 | 17.08 ms | 58.5 QPS | 1.0 MB | 64.9 MB | 0.433 s |
+
+---
+
+## Production API Endpoints
+
+- `GET /` — Interactive web demo dashboard.
+- `GET /health` — Check server status and model loading.
+- `GET /version` — Retrieve active project and model versioning details.
+- `POST /predict` — Run end-to-end intent prediction and decision routing.
+- `POST /retrieve` — Query similar resolved ticket documents.
+- `POST /explain` — Explain classifier predictions using LIME word attributions.
+- `GET /metrics` — Prometheus metrics scraping endpoint.
+
+---
+
+## License
+
+This project is licensed under the terms of the MIT License.
