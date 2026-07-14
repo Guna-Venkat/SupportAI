@@ -16,7 +16,9 @@
   <a href="https://github.com/psf/black"><img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code Style: Black" /></a>
   <a href="https://github.com/astral-sh/ruff"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Linter: Ruff" /></a>
   <a href="https://fastapi.tiangolo.com"><img src="https://img.shields.io/badge/FastAPI-0.110.0-009688.svg?style=flat&logo=FastAPI&logoColor=white" alt="FastAPI" /></a>
-  <a href="https://onnxruntime.ai"><img src="https://img.shields.io/badge/ONNX-Runtime-1.17.0-blue.svg" alt="ONNX Runtime" /></a>
+  <a href="https://github.com/microsoft/onnxruntime" target="_blank">
+  <img src="https://img.shields.io/badge/ONNX%20Runtime-1.17.0-blue?logo=onnx&logoColor=white" alt="ONNX Runtime" />
+</a>
 </p>
 
 ---
