@@ -18,7 +18,7 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request, Response, status
 from fastapi.responses import HTMLResponse
-from prometheus_client import CONTENT_TYPE_LATEST, Counter, Gauge, Histogram, generate_latest
+from prometheus_client import CONTENT_TYPE_LATEST, Counter, Gauge, Histogram, REGISTRY, generate_latest
 from pydantic import BaseModel, Field
 
 from src.evaluation.explainability import TicketExplainer
@@ -52,31 +52,47 @@ def get_git_commit() -> str:
 
 # --- Prometheus Metrics Definitions ---
 
-REQUESTS_TOTAL = Counter(
+def safe_register_metric(metric_class, name, *args, **kwargs):
+    """Safely registers a Prometheus metric, avoiding ValueError if it already exists."""
+    if name in REGISTRY._names_to_collectors:
+        collector = REGISTRY._names_to_collectors[name]
+        try:
+            REGISTRY.unregister(collector)
+        except KeyError:
+            pass
+    return metric_class(name, *args, **kwargs)
+
+
+REQUESTS_TOTAL = safe_register_metric(
+    Counter,
     "supportai_requests_total",
     "Total HTTP requests received by SupportAI API",
     ["endpoint", "method", "status_code"],
 )
 
-REQUEST_LATENCY = Histogram(
+REQUEST_LATENCY = safe_register_metric(
+    Histogram,
     "supportai_request_latency_seconds",
     "HTTP request processing latency in seconds",
     ["endpoint", "method"],
 )
 
-PREDICTION_CONFIDENCE = Histogram(
+PREDICTION_CONFIDENCE = safe_register_metric(
+    Histogram,
     "supportai_prediction_confidence",
     "Confidence score distribution of intent predictions",
     ["intent"],
 )
 
-ROUTING_DECISIONS = Counter(
+ROUTING_DECISIONS = safe_register_metric(
+    Counter,
     "supportai_routing_decision_total",
     "Total routing decisions categorized by destination route",
     ["route"],
 )
 
-MODEL_VERSION = Gauge(
+MODEL_VERSION = safe_register_metric(
+    Gauge,
     "supportai_model_version",
     "Model and system metadata information",
     ["version", "project", "git_commit", "experiment_id"],
@@ -458,7 +474,7 @@ def run_api_main() -> None:
     # Read port from PORT env variable (e.g. for HF Spaces or Render)
     port = int(os.environ.get("PORT", args.port))
 
-    uvicorn.run("src.api.app:app", host=args.host, port=port, reload=False)
+    uvicorn.run(app, host=args.host, port=port)
 
 
 if __name__ == "__main__":
